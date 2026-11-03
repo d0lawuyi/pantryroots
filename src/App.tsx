@@ -1,107 +1,103 @@
 import { useEffect, useState } from "react";
+import { Home, Camera, Globe2, Swords, Users, Search, Clock, Flame, ChevronRight, MapPin, Phone, ShoppingCart, Plus, X, ScanBarcode, Sparkles, Trophy, Leaf } from "lucide-react";
 import { PEOPLES, JOLLOF_BATTLE, OTHER_BATTLES, getSOS, applyVote } from "./data/pantryData";
 
 type Tab = "Home" | "Scan" | "Explore" | "Battles" | "Circle";
+const cx = (...c:any[])=>c.filter(Boolean).join(" ");
 
-export default function App() {
-  const [tab, setTab] = useState<Tab>("Home");
-  const [pantry, setPantry] = useState<string[]>(() => JSON.parse(localStorage.getItem("pantry") || '["Rice","Tomato","Onion","Scotch Bonnet","Palm Oil"]'));
-  const [contenders, setContenders] = useState(() => JSON.parse(localStorage.getItem("jollof") || JSON.stringify(JOLLOF_BATTLE.contenders)));
-  const [region, setRegion] = useState("All");
-  const [barcode, setBarcode] = useState("3017620422003");
-  const [barcodeResult, setBarcodeResult] = useState<any>(null);
-  const [missing, setMissing] = useState("palm oil");
-  const [mode, setMode] = useState<"BROKE"|"AUTHENTIC"|"FASTEST">("AUTHENTIC");
-  const [preview, setPreview] = useState<string>("");
-  const [requests, setRequests] = useState([{user:"Keisha • 0.4mi", item:"Has eggs + plantain to share"}, {user:"Marcus • 0.8mi", item:"Needs scotch bonnet"}, {user:"Ama • 1.1mi", item:"Has palm oil to share"}]);
+function Chip({active,children,onClick}:any){ return <button onClick={onClick} className={cx("px-3.5 py-1.5 rounded-full text-[13px] font-medium whitespace-nowrap transition", active?"bg-ink text-white":"bg-white text-stone2 border border-sand hover:border-stone-300")}>{children}</button> }
+function Card({children,className=""}:any){ return <div className={`bg-white rounded-[20px] border border-sand shadow-card ${className}`}>{children}</div> }
+function SectionTitle({title,sub}:any){ return <div className="mb-3"><h2 className="font-display text-[20px] leading-tight font-semibold">{title}</h2>{sub&&<p className="text-[13px] text-stone2 mt-0.5">{sub}</p>}</div> }
 
-  useEffect(()=>{ localStorage.setItem("pantry", JSON.stringify(pantry)) },[pantry]);
-  useEffect(()=>{ localStorage.setItem("jollof", JSON.stringify(contenders)) },[contenders]);
+export default function App(){
+  const [tab,setTab]=useState<Tab>("Home");
+  const [pantry,setPantry]=useState<string[]>(()=>JSON.parse(localStorage.getItem("pantry")||'["Rice","Tomato","Onion","Scotch Bonnet","Palm Oil"]'));
+  const [contenders,setContenders]=useState<any[]>(()=>JSON.parse(localStorage.getItem("jollof")||JSON.stringify(JOLLOF_BATTLE.contenders)));
+  const [region,setRegion]=useState("All");
+  const [barcode,setBarcode]=useState("3017620422003");
+  const [barcodeResult,setBarcodeResult]=useState<any>(null);
+  const [missing,setMissing]=useState("palm oil");
+  const [mode,setMode]=useState<"BROKE"|"AUTHENTIC"|"FASTEST">("AUTHENTIC");
+  const [preview,setPreview]=useState("");
+  const [query,setQuery]=useState("");
+  const [requests,setRequests]=useState([{user:"Keisha M.",dist:"0.4 mi",item:"Eggs & plantain available",time:"12m"},{user:"Marcus T.",dist:"0.8 mi",item:"Looking for scotch bonnet",time:"34m"},{user:"Ama K.",dist:"1.1 mi",item:"Palm oil available to share",time:"1h"}]);
 
-  const sorted = [...contenders].sort((a:any,b:any)=>b.elo-a.elo);
-  const sos = getSOS(missing, mode, pantry);
-  const filtered = region==="All" ? PEOPLES : PEOPLES.filter(p=>p.region===region);
+  useEffect(()=>{localStorage.setItem("pantry",JSON.stringify(pantry))},[pantry]);
+  useEffect(()=>{localStorage.setItem("jollof",JSON.stringify(contenders))},[contenders]);
 
-  function vote(winnerIdx:number){
-    const winner = sorted[winnerIdx];
-    const loser = sorted[winnerIdx===0?1:0];
-    const r = applyVote(winner.elo, loser.elo);
-    setContenders(contenders.map((c:any)=> c.people===winner.people ? {...c, elo:r.winner} : c.people===loser.people ? {...c, elo:r.loser} : c));
-    alert(`${winner.people} wins this round! +12 Elo`);
-  }
+  const sorted=[...contenders].sort((a,b)=>b.elo-a.elo);
+  const sos=getSOS(missing,mode,pantry);
+  const filtered=PEOPLES.filter(p=>(region==="All"||p.region===region)&&(query===""||p.people.toLowerCase().includes(query.toLowerCase())||p.dishes.some(d=>d.name.toLowerCase().includes(query.toLowerCase()))));
 
-  async function checkBarcode(){
-    try{
-      const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-      const data = await res.json();
-      if(data.status===1) setBarcodeResult({name:data.product.product_name, brand:data.product.brands, allergens:data.product.allergens||"None listed"});
-      else setBarcodeResult({name:"Not found - try photo scan", brand:barcode, allergens:"Unknown"});
-    }catch{ setBarcodeResult({name:"Mock: Nutella / Palm Oil Product", brand:"Demo Brand", allergens:"Check label"}); }
-  }
+  function vote(i:number){ const w=sorted[i]; const l=sorted[i===0?1:0]; const r=applyVote(w.elo,l.elo); setContenders(contenders.map(c=>c.people===w.people?{...c,elo:r.winner}:c.people===l.people?{...c,elo:r.loser}:c)); }
+  async function checkBarcode(){ try{ const res=await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`); const d=await res.json(); setBarcodeResult(d.status===1?{name:d.product.product_name,brand:d.product.brands||"—",allergens:d.product.allergens||"None listed"}:{name:"Product not found",brand:barcode,allergens:"Try a different UPC"});}catch{ setBarcodeResult({name:"Hazelnut Spread",brand:"Demo Product",allergens:"Hazelnut, Milk"});} }
 
-  return (
-    <div className="min-h-screen bg-[#1a120b] text-orange-50 pb-24 max-w-md mx-auto font-sans">
-      <header className="p-4 bg-[#241a12] sticky top-0 z-10 flex justify-between items-center border-b border-orange-900">
-        <div><h1 className="text-xl font-black text-orange-400">🌶️ PantryRoots</h1><p className="text-xs text-orange-200">One Pantry. Every Tribe.</p></div>
-        <span className="text-xs bg-green-800 px-2 py-1 rounded-full">{pantry.length} items</span>
-      </header>
+  return(
+  <div className="min-h-screen bg-paper pb-[92px] max-w-[430px] mx-auto relative">
+    {/* Header - Airbnb/Instacart style */}
+    <header className="sticky top-0 z-20 bg-paper/90 backdrop-blur border-b border-sand">
+      <div className="px-5 h-[64px] flex items-center justify-between">
+        <div><p className="font-display font-bold text-[19px] leading-none">PantryRoots</p><p className="text-[11px] tracking-wide text-stone2 uppercase mt-1">One pantry · Every tribe</p></div>
+        <div className="flex items-center gap-2 bg-white border border-sand rounded-full pl-3 pr-1 py-1 shadow-card"><Leaf size={14} className="text-sage"/><span className="text-[13px] font-semibold">{pantry.length} items</span><span className="bg-clay text-white text-[11px] font-bold px-2 py-1 rounded-full">PRO</span></div>
+      </div>
+    </header>
 
-      {tab==="Home" && <main className="p-4 space-y-4">
-        <div className="bg-gradient-to-r from-orange-600 to-red-700 p-4 rounded-2xl"><h2 className="font-bold text-lg">Use It Up First</h2><p className="text-sm">{pantry.join(", ")}</p></div>
-        <div className="grid grid-cols-2 gap-3">
-          <button onClick={()=>setTab("Scan")} className="bg-orange-500 p-4 rounded-2xl font-bold">📸 Scan Pantry</button>
-          <button onClick={()=>setTab("Scan")} className="bg-green-700 p-4 rounded-2xl font-bold">📦 Scan Barcode</button>
-          <button onClick={()=>setTab("Battles")} className="bg-red-700 p-4 rounded-2xl font-bold">⚔️ Jollof Wars</button>
-          <button onClick={()=>setTab("Explore")} className="bg-yellow-700 p-4 rounded-2xl font-bold text-black">🌍 Explore Tribes</button>
-        </div>
+    {tab==="Home"&&<main className="px-5 pt-5 space-y-7">
+      <div><h1 className="font-display text-[28px] leading-[1.05] font-semibold">What can your<br/>pantry become?</h1><p className="text-stone2 text-[14px] mt-2">Cook from your roots, not just your recipes.</p></div>
 
-        <div className="bg-[#241a12] p-4 rounded-2xl border border-orange-900">
-          <h3 className="font-bold mb-2">🚨 SOS - I'm Out Of...</h3>
-          <div className="flex gap-2 mb-3">{(["BROKE","AUTHENTIC","FASTEST"] as const).map(m=><button key={m} onClick={()=>setMode(m)} className={`px-3 py-1 rounded-full text-xs font-bold ${mode===m?"bg-orange-500":"bg-gray-700"}`}>{m}</button>)}</div>
-          <select value={missing} onChange={e=>setMissing(e.target.value)} className="w-full p-2 rounded bg-black mb-3">
-            <option>palm oil</option><option>coconut milk</option><option>berbere</option><option>egusi</option><option>plantain</option><option>teff</option><option>broken rice</option>
-          </select>
-          <div className="bg-black/40 p-3 rounded-xl"><p className="font-bold text-orange-300">{sos.title}</p><p className="text-sm mt-1">{sos.body}</p><p className="text-xs mt-2">Worth-The-Trip Score: {sos.worthTrip}/10 {sos.probability?`| ${sos.probability}% Likely Has It`:""}</p>
-          {sos.stores.length>0 && <div className="mt-3 space-y-2">{sos.stores.map((s:string)=><div key={s} className="flex justify-between bg-[#2d2015] p-2 rounded"><span className="text-sm">{s} • 0.8mi</span><span className="text-xs space-x-1"><a className="bg-green-700 px-2 py-1 rounded" target="_blank" href={`https://www.google.com/maps/search/${encodeURIComponent(s+" grocery near me")}`}>Directions</a><a className="bg-orange-600 px-2 py-1 rounded" target="_blank" href={`https://www.instacart.com/store/s?k=${encodeURIComponent(missing)}`}>Order</a></span></div>)}</div>}
-          </div>
-        </div>
-      </main>}
+      <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-5 px-5">{pantry.map(i=><span key={i} className="bg-white border border-sand rounded-full px-3 py-1.5 text-[13px] whitespace-nowrap shadow-card">{i}</span>)}</div>
 
-      {tab==="Scan" && <main className="p-4 space-y-4">
-        <h2 className="font-bold text-lg">Scan Pantry Photo</h2>
-        <input type="file" accept="image/*" onChange={e=>{const f=e.target.files?.[0]; if(f) setPreview(URL.createObjectURL(f))}} className="w-full bg-[#241a12] p-3 rounded-xl"/>
-        {preview && <img src={preview} className="rounded-2xl w-full h-48 object-cover"/>}
-        <button onClick={()=>setPantry(["Rice","Tomato","Onion","Scotch Bonnet","Palm Oil","Plantain","Black Beans"])} className="w-full bg-orange-500 p-3 rounded-xl font-bold">🤖 Detect Ingredients (Demo)</button>
-        <div className="space-y-2">{pantry.map((item,i)=><div key={i} className="flex justify-between bg-[#241a12] p-3 rounded-xl"><span>✅ {item}</span><button onClick={()=>setPantry(pantry.filter((_,x)=>x!==i))} className="text-red-400">✕</button></div>)}</div>
-        <button onClick={()=>setTab("Battles")} className="w-full bg-green-700 p-3 rounded-xl font-bold">Cook With This → Battles</button>
+      <div className="grid grid-cols-2 gap-3">
+        <button onClick={()=>setTab("Scan")} className="bg-ink text-white rounded-[20px] p-4 text-left shadow-pop"><Camera size={20}/><p className="font-semibold mt-3 text-[15px]">Scan pantry</p><p className="text-white/60 text-[12px]">Photo to ingredients</p></button>
+        <button onClick={()=>setTab("Scan")} className="bg-white rounded-[20px] p-4 text-left border border-sand shadow-card"><ScanBarcode size={20} className="text-clay"/><p className="font-semibold mt-3 text-[15px]">Scan barcode</p><p className="text-stone2 text-[12px]">Find it near you</p></button>
+      </div>
 
-        <h2 className="font-bold text-lg pt-4">Barcode / UPC Finder</h2>
-        <div className="flex gap-2"><input value={barcode} onChange={e=>setBarcode(e.target.value)} className="flex-1 p-3 rounded bg-black" placeholder="Enter UPC"/><button onClick={checkBarcode} className="bg-orange-500 px-4 rounded font-bold">Find</button></div>
-        {barcodeResult && <div className="bg-[#241a12] p-4 rounded-xl"><p className="font-bold">{barcodeResult.name}</p><p className="text-sm">Brand: {barcodeResult.brand}</p><p className="text-sm">Allergens: {barcodeResult.allergens}</p><p className="text-xs mt-2 text-green-300">Similar at: African Market 0.7mi (88%), Walmart 1.4mi (95%), H Mart 2.1mi</p></div>}
-      </main>}
+      <div><SectionTitle title="Battle of the week" sub="Same base. Different ancestors."/>
+        <Card className="overflow-hidden"><div className="h-[140px] bg-[url('https://images.unsplash.com/photo-1574484284002-952d92456975?w=800&q=80')] bg-cover bg-center"/><div className="p-4"><div className="flex justify-between items-center"><p className="font-semibold">Jollof Wars</p><span className="text-[11px] font-bold bg-red-50 text-clay px-2 py-1 rounded-full flex items-center gap-1"><Flame size={12}/> LIVE</span></div><p className="text-[13px] text-stone2 mt-1">Nigeria vs Ghana vs Senegal — {sorted[0].people} is leading with {sorted[0].elo} pts.</p><button onClick={()=>setTab("Battles")} className="mt-3 w-full bg-clay hover:bg-clayDark text-white rounded-full py-2.5 text-[14px] font-semibold">Enter battle</button></div></Card>
+      </div>
 
-      {tab==="Explore" && <main className="p-4 space-y-4">
-        <h2 className="font-bold text-lg">Explore By People / Tribe</h2>
-        <div className="flex gap-2 flex-wrap">{["All","West Africa","East Africa"].map(r=><button key={r} onClick={()=>setRegion(r)} className={`px-3 py-1 rounded-full text-xs font-bold ${region===r?"bg-orange-500":"bg-gray-700"}`}>{r}</button>)}</div>
-        {filtered.map(p=><div key={p.people} className="bg-[#241a12] p-4 rounded-2xl border border-orange-900"><h3 className="font-black text-orange-300">{p.people} <span className="text-xs text-white">• {p.modernArea} • {p.region}</span></h3>{p.dishes.map(d=><div key={d.name} className="mt-3 bg-black/30 p-3 rounded-xl"><p className="font-bold">{d.name}</p><p className="text-sm text-orange-100">{d.story}</p><p className="text-xs mt-1">Key: {d.keyIngredients.join(", ")}</p><p className="text-xs italic">Technique: {d.technique}</p></div>)}</div>)}
-      </main>}
+      <div><SectionTitle title="I'm out of something" sub="Get a substitute or find it nearby."/>
+        <Card className="p-4">
+          <div className="bg-paper rounded-full p-1 grid grid-cols-3 gap-1">{(["BROKE","AUTHENTIC","FASTEST"] as const).map(m=><button key={m} onClick={()=>setMode(m)} className={cx("py-2 rounded-full text-[12px] font-semibold capitalize",mode===m?"bg-white shadow-card text-ink":"text-stone2")}>{m.toLowerCase()}</button>)}</div>
+          <label className="text-[12px] font-semibold uppercase tracking-wide text-stone2 block mt-4 mb-1.5">Missing ingredient</label>
+          <select value={missing} onChange={e=>setMissing(e.target.value)} className="w-full bg-paper border border-sand rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-clay"><option>palm oil</option><option>coconut milk</option><option>berbere</option><option>egusi</option><option>plantain</option><option>teff</option><option>broken rice</option></select>
+          <div className="mt-4 bg-[#FFF7ED] border border-orange-100 rounded-xl p-3.5"><p className="font-semibold text-[14px]">{sos.title}</p><p className="text-[13px] text-stone-600 mt-1 leading-relaxed">{sos.body}</p><div className="flex gap-4 mt-2.5 text-[12px] font-medium"><span>Worth the trip: {sos.worthTrip}/10</span>{sos.probability>0&&<span className="text-sage">{sos.probability}% likely in stock</span>}</div></div>
+          {sos.stores.map((s:string)=> <div key={s} className="flex items-center justify-between py-3 border-b border-sand last:border-0"><div className="flex gap-3 items-center"><div className="w-9 h-9 rounded-full bg-paper flex items-center justify-center border border-sand"><MapPin size={16} className="text-clay"/></div><div><p className="text-[14px] font-medium leading-none">{s}</p><p className="text-[12px] text-stone2 mt-1">0.8 mi · Open until 10 PM</p></div></div><div className="flex gap-1.5"><a target="_blank" href={`https://www.google.com/maps/search/${encodeURIComponent(s+" grocery near me")}`} className="px-3 py-1.5 rounded-full border border-sand text-[12px] font-semibold bg-white">Directions</a><a target="_blank" href={`https://www.instacart.com/store/s?k=${encodeURIComponent(missing)}`} className="px-3 py-1.5 rounded-full bg-ink text-white text-[12px] font-semibold flex items-center gap-1"><ShoppingCart size={12}/>Order</a></div></div>)}
+        </Card>
+      </div>
+    </main>}
 
-      {tab==="Battles" && <main className="p-4 space-y-4">
-        <div className="bg-gradient-to-r from-red-800 to-orange-600 p-4 rounded-2xl text-center"><h2 className="text-2xl font-black">⚔️ JOLLOF WARS</h2><p className="text-sm">Same rice + tomato. Different ancestors. You decide.</p></div>
-        <div className="bg-[#241a12] p-4 rounded-2xl"><h3 className="font-bold mb-2">🏆 Live Leaderboard (Elo)</h3>{sorted.map((c:any,i:number)=><div key={c.people} className="flex justify-between py-2 border-b border-orange-900/50"><span>#{i+1} {c.people} - {c.dish}</span><b className="text-orange-400">{c.elo}</b></div>)}</div>
-        {sorted.map((c:any,i:number)=><div key={c.people} className="bg-[#241a12] p-4 rounded-2xl border border-orange-900"><h3 className="font-bold text-orange-300">{c.people}</h3><p className="font-black">{c.dish}</p><div className="text-sm mt-2 space-y-1"><p>🍚 Rice: {c.rice}</p><p>🍅 Base: {c.tomatoBase}</p><p>🔥 Smoke: {c.smoke}</p><p>🤫 Secret: {c.secret}</p><p>👩🏾‍🍳 Technique: {c.technique}</p></div><div className="flex gap-2 mt-3"><button onClick={()=>setTab("Home")} className="flex-1 bg-green-700 p-2 rounded font-bold text-sm">Cook This</button><button onClick={()=>vote(i)} className="flex-1 bg-orange-500 p-2 rounded font-bold text-sm">Vote +12</button></div></div>)}
-        <h3 className="font-bold pt-2">Other Tribe Battles</h3>{OTHER_BATTLES.map(b=><div key={b.id} className="bg-[#241a12] p-4 rounded-2xl"><p className="font-bold">{b.title}</p><p className="text-sm">{b.items.join("  VS  ")}</p><p className="text-xs mt-1">Base: {b.base.join(", ")}</p></div>)}
-      </main>}
+    {tab==="Scan"&&<main className="px-5 pt-5 space-y-6">
+      <div><h1 className="font-display text-[26px] font-semibold">Scan</h1><p className="text-stone2 text-[14px]">Add items to your pantry in seconds.</p></div>
+      <Card className="p-4"><p className="font-semibold text-[15px] mb-3">Pantry photo</p><label className="block border-2 border-dashed border-sand rounded-[16px] overflow-hidden cursor-pointer bg-paper">{preview?<img src={preview} className="w-full h-[200px] object-cover"/>:<div className="h-[160px] flex flex-col items-center justify-center text-stone2"><Camera size={24}/><p className="text-[13px] mt-2 font-medium">Tap to upload pantry photo</p></div>}<input type="file" accept="image/*" className="hidden" onChange={e=>{const f=e.target.files?.[0]; if(f) setPreview(URL.createObjectURL(f))}}/></label><button onClick={()=>setPantry(["Rice","Tomato","Onion","Scotch Bonnet","Palm Oil","Plantain","Black Beans"])} className="mt-3 w-full bg-ink text-white py-3 rounded-full font-semibold text-[14px] flex items-center justify-center gap-2"><Sparkles size={16}/> Detect ingredients</button></Card>
+      <div><SectionTitle title={`In your pantry (${pantry.length})`}/><div className="space-y-2">{pantry.map((item,i)=><div key={i} className="bg-white border border-sand rounded-[14px] px-4 py-3 flex justify-between items-center shadow-card"><span className="text-[14px] font-medium">{item}</span><button onClick={()=>setPantry(pantry.filter((_,x)=>x!==i))} className="text-stone-400 hover:text-clay"><X size={16}/></button></div>)}</div><button onClick={()=>setTab("Battles")} className="mt-4 w-full bg-clay text-white py-3 rounded-full font-semibold text-[14px]">Find recipes & battles</button></div>
+      <Card className="p-4"><p className="font-semibold text-[15px]">Barcode lookup</p><p className="text-[13px] text-stone2 mt-0.5">Powered by Open Food Facts</p><div className="flex gap-2 mt-3"><input value={barcode} onChange={e=>setBarcode(e.target.value)} className="flex-1 bg-paper border border-sand rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-clay" placeholder="Enter UPC"/><button onClick={checkBarcode} className="bg-ink text-white px-4 rounded-xl font-semibold text-[14px]">Find</button></div>{barcodeResult&&<div className="mt-3 bg-paper rounded-xl p-3 border border-sand"><p className="font-semibold text-[14px]">{barcodeResult.name}</p><p className="text-[13px] text-stone2">Brand: {barcodeResult.brand} · Allergens: {barcodeResult.allergens}</p><p className="text-[12px] text-sage font-medium mt-2">Also likely at African Market (88%) · Walmart (95%)</p></div>}</Card>
+    </main>}
 
-      {tab==="Circle" && <main className="p-4 space-y-3">
-        <h2 className="font-bold text-lg">👥 Pantry Circle - Village Borrowing</h2><p className="text-sm text-orange-200">Before you pay for delivery, ask your people nearby.</p>
-        <button onClick={()=>setRequests([{user:"You • Now", item:`Need: ${missing} (${mode} mode)`},...requests])} className="w-full bg-orange-500 p-3 rounded-xl font-bold">+ Post Request: I need {missing}</button>
-        {requests.map((r,i)=><div key={i} className="bg-[#241a12] p-4 rounded-2xl flex justify-between items-center"><div><p className="font-bold text-sm">{r.user}</p><p className="text-sm">{r.item}</p></div><button className="bg-green-700 px-3 py-2 rounded text-xs font-bold">Ask</button></div>)}
-      </main>}
+    {tab==="Explore"&&<main className="px-5 pt-5 space-y-5">
+      <div><h1 className="font-display text-[26px] font-semibold">Explore by people</h1><p className="text-stone2 text-[14px]">Indigenous foodways, not just countries.</p></div>
+      <div className="relative"><Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tribe, dish, ingredient" className="w-full bg-white border border-sand rounded-full pl-10 pr-4 py-3 text-[14px] shadow-card outline-none focus:border-clay"/></div>
+      <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-5 px-5">{["All","West Africa","East Africa"].map(r=><Chip key={r} active={region===r} onClick={()=>setRegion(r)}>{r}</Chip>)}</div>
+      <div className="space-y-4">{filtered.map(p=><Card key={p.people} className="p-4"><div className="flex justify-between items-start"><div><p className="font-display font-semibold text-[18px]">{p.people}</p><p className="text-[12px] text-stone2">{p.modernArea} · {p.region}</p></div><span className="text-[11px] font-bold bg-paper border border-sand px-2 py-1 rounded-full">{p.dishes.length} dishes</span></div><div className="mt-3 space-y-2">{p.dishes.map(d=><div key={d.name} className="rounded-[14px] bg-paper border border-sand p-3"><div className="flex justify-between"><p className="font-semibold text-[14px]">{d.name}</p><ChevronRight size={16} className="text-stone-400"/></div><p className="text-[13px] text-stone-600 mt-1 leading-relaxed">{d.story}</p><p className="text-[11px] text-stone2 mt-2"><span className="font-semibold text-ink">Key:</span> {d.keyIngredients.join(", ")} · {d.technique}</p></div>)}</div></Card>)}</div>
+    </main>}
 
-      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#241a12] border-t border-orange-900 flex justify-around py-3">
-        {([["Home","🏠"],["Scan","📸"],["Explore","🌍"],["Battles","⚔️"],["Circle","👥"]] as [Tab,string][]).map(([t,icon])=><button key={t} onClick={()=>setTab(t)} className={`flex flex-col items-center text-xs ${tab===t?"text-orange-400 font-bold":"text-gray-400"}`}><span className="text-xl">{icon}</span>{t}</button>)}
-      </nav>
-    </div>
-  );
+    {tab==="Battles"&&<main className="px-5 pt-5 space-y-6">
+      <div className="bg-ink text-white rounded-[24px] p-5 shadow-pop"><div className="flex items-center gap-2 text-orange-300 text-[11px] font-bold tracking-widest uppercase"><Trophy size={14}/> Featured battle</div><h1 className="font-display text-[30px] font-semibold mt-2">Jollof Wars</h1><p className="text-white/60 text-[13px] mt-1">One base — rice, tomato, onion, pepper. Five ancestors. Vote for the technique, not just the taste.</p></div>
+      <Card className="p-2"><p className="px-3 pt-3 pb-1 text-[12px] font-bold uppercase tracking-wide text-stone2">Live leaderboard</p>{sorted.map((c:any,i:number)=><div key={c.people} className="flex items-center justify-between px-3 py-3 border-b border-sand last:border-0"><div className="flex items-center gap-3"><span className={cx("w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold",i===0?"bg-clay text-white":"bg-paper border border-sand")}>{i+1}</span><div><p className="text-[14px] font-semibold leading-none">{c.people}</p><p className="text-[12px] text-stone2 mt-1">{c.dish}</p></div></div><span className="font-display font-bold">{c.elo}</span></div>)}</Card>
+      <div className="space-y-3">{sorted.map((c:any,i:number)=><Card key={c.people} className="p-4"><div className="flex justify-between"><p className="font-semibold">{c.people}</p><span className="text-[12px] font-bold text-clay">{c.elo} pts</span></div><p className="font-display text-[18px] mt-0.5">{c.dish}</p><dl className="grid grid-cols-2 gap-x-3 gap-y-2 mt-3 text-[13px]"><div><dt className="text-stone2 text-[11px] uppercase font-bold">Rice</dt><dd>{c.rice}</dd></div><div><dt className="text-stone2 text-[11px] uppercase font-bold">Smoke</dt><dd>{c.smoke}</dd></div><div className="col-span-2"><dt className="text-stone2 text-[11px] uppercase font-bold">Base & secret</dt><dd>{c.tomatoBase} · {c.secret}</dd></div><div className="col-span-2"><dt className="text-stone2 text-[11px] uppercase font-bold">Technique</dt><dd>{c.technique}</dd></div></dl><div className="flex gap-2 mt-4"><button onClick={()=>setTab("Home")} className="flex-1 border border-sand rounded-full py-2.5 text-[13px] font-semibold bg-white flex items-center justify-center gap-1.5"><Clock size={14}/> Cook this</button><button onClick={()=>vote(i)} className="flex-1 bg-ink text-white rounded-full py-2.5 text-[13px] font-semibold">Vote for this style</button></div></Card>)}</div>
+      <div><SectionTitle title="More battles"/><div className="space-y-2">{OTHER_BATTLES.map(b=><Card key={b.id} className="p-4 flex justify-between items-center"><div><p className="font-semibold text-[14px]">{b.title}</p><p className="text-[12px] text-stone2 mt-0.5">{b.items.join(" vs ")}</p></div><ChevronRight size={18} className="text-stone-400 shrink-0"/></Card>)}</div></div>
+    </main>}
+
+    {tab==="Circle"&&<main className="px-5 pt-5 space-y-5">
+      <div><h1 className="font-display text-[26px] font-semibold">Pantry Circle</h1><p className="text-stone2 text-[14px]">Borrow from your village before you buy.</p></div>
+      <button onClick={()=>setRequests([{user:"You",dist:"Now",item:`Looking for ${missing}`,time:"now"},...requests])} className="w-full bg-clay text-white py-3.5 rounded-full font-semibold text-[14px] flex items-center justify-center gap-2 shadow-card"><Plus size={16}/> Post a request</button>
+      <div className="space-y-2">{requests.map((r,i)=><Card key={i} className="p-4 flex justify-between items-center"><div className="flex gap-3 items-center"><div className="w-10 h-10 rounded-full bg-paper border border-sand flex items-center justify-center font-display font-bold text-clay">{r.user[0]}</div><div><p className="text-[14px] font-semibold leading-none">{r.user} <span className="text-stone2 font-normal">· {r.dist}</span></p><p className="text-[13px] text-stone-600 mt-1">{r.item}</p></div></div><button className="px-3.5 py-2 rounded-full bg-ink text-white text-[12px] font-semibold shrink-0">Ask</button></Card>)}</div>
+      <Card className="p-4 bg-[#F3F6EE] border-green-100"><p className="font-semibold text-[14px] flex items-center gap-2"><Phone size={14}/> How it works</p><p className="text-[13px] text-stone-600 mt-1 leading-relaxed">Neighbors list extras they’re willing to share. No payment in-app — just message, meet, and return the favor.</p></Card>
+    </main>}
+
+    {/* Bottom Nav - Production Pattern */}
+    <nav className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white/95 backdrop-blur border-t border-sand px-2 pt-2 pb-[max(12px,env(safe-area-inset-bottom))] flex justify-around z-20">
+      {([["Home",Home],["Scan",Camera],["Explore",Globe2],["Battles",Swords],["Circle",Users]] as const).map(([t,Icon])=><button key={t} onClick={()=>setTab(t as Tab)} className={cx("flex flex-col items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-medium",tab===t?"text-clay":"text-stone-400")}><Icon size={20} strokeWidth={tab===t?2.4:1.8}/>{t}</button>)}
+    </nav>
+  </div>);
 }
