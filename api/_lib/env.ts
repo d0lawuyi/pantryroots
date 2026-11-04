@@ -37,7 +37,8 @@ export function setupStatus() {
       keyFound: Boolean(ENV.aiKey),
       AI_GATEWAY_API_KEY: has("AI_GATEWAY_API_KEY"),
       GEMINI_API_KEY: has("GEMINI_API_KEY"),
-      baseUrl: ENV.aiBase,
+      // Only echo it when it's really a URL — never risk printing a pasted key.
+      baseUrl: /^https:\/\/[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(ENV.aiBase) ? ENV.aiBase : "NOT A URL — this setting holds something else (check AI_GATEWAY_BASE_URL)",
       model: ENV.model,
     },
     GOOGLE_MAPS_API_KEY: has("GOOGLE_MAPS_API_KEY"),
