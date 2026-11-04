@@ -1,0 +1,20 @@
+{
+  "name": "PantryRoots",
+  "short_name": "PantryRoots",
+  "description": "Cook from your pantry across West and East African food traditions, with a kitchen concierge for swaps, shops and delivery.",
+  "start_url": "/#/cook",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f2f3f5",
+  "theme_color": "#22337a",
+  "categories": ["food", "lifestyle"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Scan my pantry", "url": "/#/pantry" },
+    { "name": "Explore dishes", "url": "/#/explore" }
+  ]
+}

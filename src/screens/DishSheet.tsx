@@ -7,7 +7,7 @@ import { Icon } from "@/components/Icon";
 import { Meter, Plate, Sheet, formatMinutes } from "@/components/ui";
 
 export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) {
-  const { pantry, addItems, ask, getDish, notify } = useApp();
+  const { pantry, addItems, ask, getDish, notify, startCooking } = useApp();
   const [open, setOpen] = useState<string | null>(null);
   const found = getDish(id);
   if (!found) return null;
@@ -31,17 +31,23 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
       title={dish.name}
       onClose={onClose}
       footer={
-        m.need.length > 0 ? (
-          <div className="btn-row">
-            <button type="button" className="btn btn--secondary" onClick={copyList}>
-              <Icon name="copy" size={18} />
-              Copy list
-            </button>
-            <button type="button" className="btn btn--primary" onClick={() => addItems(m.need.map(cleanItem))}>
-              I've got them
-            </button>
-          </div>
-        ) : undefined
+        <div className="stack" style={{ gap: 8 }}>
+          {m.need.length > 0 && (
+            <div className="btn-row">
+              <button type="button" className="btn btn--secondary" onClick={copyList}>
+                <Icon name="copy" size={18} />
+                Copy list
+              </button>
+              <button type="button" className="btn btn--secondary" onClick={() => addItems(m.need.map(cleanItem))}>
+                I've got them
+              </button>
+            </div>
+          )}
+          <button type="button" className="btn btn--primary btn--block" onClick={() => startCooking(dish.id)}>
+            <Icon name="cook" size={18} />
+            Start cooking
+          </button>
+        </div>
       }
     >
       <div className="dish-head">

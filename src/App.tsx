@@ -12,6 +12,7 @@ import { NeighborsScreen } from "@/screens/NeighborsScreen";
 import { DishSheet } from "@/screens/DishSheet";
 import { SwapSheet } from "@/screens/SwapSheet";
 import { Concierge } from "@/components/Concierge";
+import { CookMode } from "@/components/CookMode";
 import { dishById, type Dish } from "@/data/dishes";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
@@ -38,6 +39,7 @@ export default function App() {
   const [swap, setSwap] = useState<{ ingredient?: string } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [conciergeOpen, setConciergeOpen] = useState(false);
+  const [cookingId, setCookingId] = useState<string | null>(null);
   const [pendingAsk, setPendingAsk] = useState<{ text: string; nonce: number } | null>(null);
   const [aiDishes, setAiDishes] = useState<Record<string, Dish>>({});
 
@@ -72,6 +74,7 @@ export default function App() {
       removeItem: (item) => setPantry((prev) => prev.filter((p) => p !== item)),
       openDish: (id) => { setSwap(null); setDishId(id); },
       openSwap: (ingredient) => { setDishId(null); setSwap({ ingredient }); },
+      startCooking: (id) => { setDishId(null); setSwap(null); setCookingId(id); },
       ask: (prompt) => {
         setDishId(null);
         setSwap(null);
@@ -139,6 +142,7 @@ export default function App() {
 
       {dishId && <DishSheet id={dishId} onClose={() => setDishId(null)} />}
       {swap && <SwapSheet initial={swap.ingredient} onClose={() => setSwap(null)} />}
+      {cookingId && api.getDish(cookingId) && <CookMode dish={api.getDish(cookingId)!} onClose={() => setCookingId(null)} />}
       {toast && <Toast message={toast} onDone={clearToast} />}
     </AppContext.Provider>
   );

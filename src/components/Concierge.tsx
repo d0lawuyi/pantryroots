@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { ChatTurn } from "@/lib/concierge-types";
 import { askConcierge, localRespond, resizeImage } from "@/lib/concierge-client";
+import { useSpeech } from "@/lib/use-speech";
 import { usePersistentState } from "@/lib/storage";
 import { useApp } from "@/lib/app-context";
 import { ConciergeCard } from "./ConciergeCards";
 import { Icon } from "./Icon";
 
-const SUGGESTIONS = ["What can I cook tonight?", "I'm out of palm oil", "Something Caribbean with what I have"];
+const ACTIONS = [
+  { icon: "camera", title: "Scan my shelf", sub: "Photo of your pantry or fridge", kind: "photo" },
+  { icon: "cook", title: "What can I cook tonight?", sub: "Ranked by what you have", kind: "ask" },
+  { icon: "swap", title: "I'm out of palm oil", sub: "Swap, nearest shop, delivery", kind: "ask" },
+  { icon: "explore", title: "Something Caribbean with what I have", sub: "AI-written, from other traditions", kind: "ask" },
+] as const;
 const NEEDS_LOCATION = /(out of|ran out|run out|don'?t have|buy|store|shop|near|order|deliver)/i;
 
 type Loc = { lat: number; lng: number };
@@ -28,6 +34,14 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
   const [demo, setDemo] = usePersistentState<boolean>("demo", false);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [busyKind, setBusyKind] = useState<"photo" | "shop" | "chat">("chat");
+  const speech = useSpeech(
+    (interim) => setDraft(interim),
+    (final) => {
+      setDraft("");
+      void send(final);
+    },
+  );
   const [loc, setLoc] = useState<Loc | null | undefined>(undefined);
   const [zip, setZip] = useUsableZip();
   const listRef = useRef<HTMLDivElement>(null);
@@ -68,6 +82,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
     const zipInText = clean.match(/\b\d{5}\b/)?.[0];
     if (zipInText) setZip(zipInText);
 
+    setBusyKind(image ? "photo" : NEEDS_LOCATION.test(clean) ? "shop" : "chat");
     setBusy(image ? "Looking at your photo…" : NEEDS_LOCATION.test(clean) ? "Checking shops near you…" : "Thinking…");
 
     let reply: ChatTurn;
@@ -139,18 +154,24 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
       <div className="concierge__list" ref={listRef} aria-live="polite">
         {turns.length === 0 && (
           <div className="concierge__empty">
-            <p className="row__title">What are we cooking?</p>
+            <p className="concierge__hello">What are we cooking?</p>
             <p className="small muted" style={{ marginTop: 4 }}>
-              Send a photo of your shelf or fridge, ask what to make, or tell me what you've run out of.
+              {speech.supported ? "Tap a starter, type, or tap the mic and talk." : "Tap a starter or type a message."}
             </p>
-            <button type="button" className="btn btn--tinted btn--block" style={{ marginTop: 16 }} onClick={() => fileRef.current?.click()}>
-              <Icon name="camera" size={18} />
-              Scan my pantry
-            </button>
-            <div className="concierge__chips">
-              {SUGGESTIONS.map((s) => (
-                <button key={s} type="button" className="chip" onClick={() => void send(s)}>
-                  {s}
+            <div className="tiles">
+              {ACTIONS.map((a) => (
+                <button
+                  key={a.title}
+                  type="button"
+                  className="tile"
+                  onClick={() => (a.kind === "photo" ? fileRef.current?.click() : void send(a.title))}
+                >
+                  <span className="tile__icon"><Icon name={a.icon} size={20} /></span>
+                  <span className="row__body">
+                    <span className="tile__title">{a.title}</span>
+                    <span className="tile__sub">{a.sub}</span>
+                  </span>
+                  <Icon name="chevron" size={16} />
                 </button>
               ))}
             </div>
@@ -178,6 +199,14 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
               <span className="typing__dots" aria-hidden="true"><i /><i /><i /></span>
               {busy}
             </p>
+            {Array.from({ length: busyKind === "shop" ? 3 : 1 }, (_, k) => (
+              <div key={k} className="skeleton" aria-hidden="true">
+                <span className="skeleton__line" style={{ width: "40%" }} />
+                <span className="skeleton__line" style={{ width: "85%" }} />
+                <span className="skeleton__line" style={{ width: busyKind === "photo" ? "70%" : "60%" }} />
+                {busyKind === "photo" && <span className="skeleton__line" style={{ width: "55%" }} />}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -202,16 +231,29 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
           id="concierge-input"
           ref={inputRef}
           className="input"
-          placeholder="I'm out of…"
+          placeholder={speech.listening ? "Listening…" : "I'm out of…"}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           autoComplete="off"
           enterKeyHint="send"
         />
+        {speech.supported && (
+          <button
+            type="button"
+            className={speech.listening ? "icon-btn mic mic--on" : "icon-btn mic"}
+            aria-label={speech.listening ? "Stop listening" : "Speak your message"}
+            aria-pressed={speech.listening}
+            onClick={() => (speech.listening ? speech.stop() : speech.start())}
+            disabled={!!busy}
+          >
+            <Icon name="mic" size={20} />
+          </button>
+        )}
         <button type="submit" className="btn btn--primary concierge__send" disabled={!draft.trim() || !!busy} aria-label="Send">
           <Icon name="send" size={18} />
         </button>
       </form>
+      {speech.error && <p className="concierge__voice-error" role="alert">{speech.error}</p>}
       <label className="concierge__demo">
         <input type="checkbox" checked={demo} onChange={(e) => setDemo(e.target.checked)} />
         Demo mode (sample answers, works offline)

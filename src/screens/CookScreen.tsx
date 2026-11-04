@@ -3,16 +3,21 @@ import { BATTLES } from "@/data/battles";
 import { rankDishes } from "@/lib/pantry";
 import { useApp } from "@/lib/app-context";
 import { DishRow } from "@/components/DishRow";
+import { peopleById } from "@/data/dishes";
+import type { Match } from "@/lib/pantry";
 import { Icon } from "@/components/Icon";
-import { PageHeader, Section } from "@/components/ui";
+import { Meter, PageHeader, Plate, Section, formatMinutes } from "@/components/ui";
 
 const plural = (n: number, one: string, many = one + "s") => `${n} ${n === 1 ? one : many}`;
 
 export function CookScreen({ ratings }: { ratings: Record<string, Record<string, number>> }) {
   const { pantry, go, ask } = useApp();
   const ranked = useMemo(() => rankDishes(pantry), [pantry]);
+  const hero = pantry.length > 0 ? ranked[0] : undefined;
   const ready = ranked.filter((m) => m.need.length === 0);
   const close = ranked.filter((m) => m.need.length > 0 && m.need.length <= 2);
+  const readyRest = ready.filter((m) => m !== hero);
+  const closeRest = close.filter((m) => m !== hero);
 
   const jollof = BATTLES[0];
   const jollofRatings = ratings[jollof.id] ?? {};
@@ -30,6 +35,8 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
   return (
     <div className="page">
       <PageHeader title="Cook" lede={lede} />
+
+      {hero && <TonightHero match={hero} />}
 
       <Section>
         <div className="group">
@@ -56,24 +63,24 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
         </div>
       </Section>
 
-      {ready.length > 0 && (
-        <Section title="Ready to cook">
+      {readyRest.length > 0 && (
+        <Section title="Also ready to cook">
           <div className="group">
-            {ready.map((m) => (
+            {readyRest.map((m) => (
               <DishRow key={m.dish.id} match={m} />
             ))}
           </div>
         </Section>
       )}
 
-      {close.length > 0 && (
+      {closeRest.length > 0 && (
         <Section
           title="One or two short"
           action={<button type="button" className="link" onClick={() => go("explore")}>All dishes</button>}
           note="Tap a missing ingredient inside a dish to see what to use instead."
         >
           <div className="group">
-            {close.slice(0, 6).map((m) => (
+            {closeRest.slice(0, 6).map((m) => (
               <DishRow key={m.dish.id} match={m} />
             ))}
           </div>
@@ -105,5 +112,54 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
         </div>
       </Section>
     </div>
+  );
+}
+
+function TonightHero({ match }: { match: Match }) {
+  const { openDish, startCooking, ask } = useApp();
+  const { dish, have, need } = match;
+  const people = peopleById[dish.peopleId];
+  const ready = need.length === 0;
+
+  return (
+    <section className="hero" aria-labelledby="hero-title">
+      <div className="hero__top">
+        <div>
+          <p className="hero__kicker">{ready ? "Tonight's best match" : "Closest to ready"}</p>
+          <h2 id="hero-title" className="hero__name">{dish.name}</h2>
+          <p className="hero__meta">
+            {people ? `${people.name}, ${people.area}` : dish.origin}
+            <span className="hero__time"><Icon name="clock" size={15} />{formatMinutes(dish.minutes)}</span>
+          </p>
+        </div>
+        <Plate tone={dish.tone} large />
+      </div>
+
+      <p className="hero__summary">{dish.summary}</p>
+
+      <div className="hero__match">
+        <Meter have={have.length} total={dish.ingredients.length} large />
+        <p className="hero__status">
+          {ready ? `You have all ${dish.ingredients.length} ingredients` : `Missing ${need.slice(0, 2).join(" and ")}${need.length > 2 ? ` +${need.length - 2}` : ""}`}
+        </p>
+      </div>
+
+      <div className="hero__actions">
+        {ready ? (
+          <button type="button" className="btn hero__primary" onClick={() => startCooking(dish.id)}>
+            <Icon name="cook" size={18} />
+            Start cooking
+          </button>
+        ) : (
+          <button type="button" className="btn hero__primary" onClick={() => ask(`I'm out of ${need[0]} for ${dish.name}`)}>
+            <Icon name="swap" size={18} />
+            Find {need[0]}
+          </button>
+        )}
+        <button type="button" className="btn hero__ghost" onClick={() => openDish(dish.id)}>
+          View recipe
+        </button>
+      </div>
+    </section>
   );
 }

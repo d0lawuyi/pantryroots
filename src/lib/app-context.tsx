@@ -9,6 +9,8 @@ export type AppApi = {
   removeItem: (item: string) => void;
   openDish: (id: string) => void;
   openSwap: (ingredient?: string) => void;
+  /** Full-screen, step-by-step cooking view. */
+  startCooking: (id: string) => void;
   /** Open the concierge, optionally sending a message straight away. */
   ask: (prompt?: string) => void;
   /** Make an AI-written dish openable in the dish sheet. */
