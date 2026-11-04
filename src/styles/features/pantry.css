@@ -1,0 +1,222 @@
+/* ───────────────── Pantry: aisles, search, running low ─────────────────
+   Owned by src/screens/PantryScreen.tsx. Tokens only; dark mode via tokens. */
+
+.pantry-list {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.pantry-search .input {
+  height: 44px;
+}
+
+.pantry-search .input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+/* Running low summary row — a single tappable row, no nested card */
+.pantry-lowbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-3);
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+.pantry-lowbar:hover {
+  background: var(--surface-sunken);
+}
+
+.pantry-lowbar[aria-pressed="true"] {
+  background: var(--pepper-tint);
+  border-color: color-mix(in srgb, var(--pepper) 35%, transparent);
+}
+
+.pantry-lowbar__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  background: var(--pepper-tint);
+  color: var(--pepper);
+}
+
+.pantry-lowbar[aria-pressed="true"] .pantry-lowbar__icon {
+  background: var(--surface);
+}
+
+.pantry-lowbar__body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 1px;
+}
+
+.pantry-lowbar__title {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.pantry-lowbar__meta {
+  overflow: hidden;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.pantry-lowbar__action {
+  flex: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--indigo-text);
+}
+
+/* Aisle blocks: a sticky label above a plain grouped list */
+.aisle {
+  --aisle: var(--ink-2);
+  --aisle-tint: var(--surface-sunken);
+}
+
+.aisle[data-aisle="produce"] { --aisle: var(--leaf); --aisle-tint: var(--leaf-tint); }
+.aisle[data-aisle="grains"] { --aisle: var(--gold-ink); --aisle-tint: var(--gold-tint); }
+.aisle[data-aisle="spices"] { --aisle: var(--tone-red); --aisle-tint: color-mix(in srgb, var(--tone-red) 14%, var(--surface)); }
+.aisle[data-aisle="oils"] { --aisle: var(--tone-orange); --aisle-tint: color-mix(in srgb, var(--tone-orange) 14%, var(--surface)); }
+.aisle[data-aisle="meat"] { --aisle: var(--tone-brown); --aisle-tint: color-mix(in srgb, var(--tone-brown) 16%, var(--surface)); }
+.aisle[data-aisle="dried"] { --aisle: var(--indigo-text); --aisle-tint: var(--indigo-tint); }
+
+@media (prefers-color-scheme: dark) {
+  /* Dish tones are tuned for light surfaces; lift them so icons stay legible */
+  .aisle[data-aisle="spices"] { --aisle: color-mix(in srgb, var(--tone-red) 65%, var(--ink)); }
+  .aisle[data-aisle="oils"] { --aisle: color-mix(in srgb, var(--tone-orange) 70%, var(--ink)); }
+  .aisle[data-aisle="meat"] { --aisle: color-mix(in srgb, var(--tone-brown) 55%, var(--ink)); }
+}
+
+.aisle__head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  padding: var(--s-3) var(--s-1) var(--s-2);
+  background: var(--canvas);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.aisle__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--aisle-tint);
+  color: var(--aisle);
+}
+
+.aisle__name {
+  color: var(--ink);
+}
+
+.aisle__count {
+  margin-left: auto;
+  padding-right: var(--s-3);
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+/* Item rows */
+.pantry-item {
+  min-height: 52px;
+  gap: var(--s-1);
+  padding-block: 4px;
+  padding-right: var(--s-2);
+}
+
+.pantry-item__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--s-2);
+  overflow-wrap: anywhere;
+}
+
+.pantry-item__pill {
+  height: 20px;
+  font-size: 11.5px;
+}
+
+.pantry-item .icon-btn {
+  width: 44px;
+  height: 44px;
+  color: var(--ink-3);
+}
+
+.pantry-item .icon-btn:hover {
+  color: var(--ink);
+}
+
+.pantry-item__low[aria-pressed="true"] {
+  color: var(--pepper);
+}
+
+.pantry-item__low[aria-pressed="true"]:hover {
+  background: var(--pepper-tint);
+  color: var(--pepper);
+}
+
+.pantry-item--removed {
+  background: var(--surface-sunken);
+  color: var(--ink-2);
+  font-size: var(--fs-sm);
+}
+
+.pantry-undo {
+  height: 44px;
+  padding: 0 var(--s-4);
+  color: var(--indigo-text);
+  font-weight: 600;
+}
+
+.pantry-undo:hover {
+  background: var(--indigo-tint);
+}
+
+/* Undo row slides in gently; nothing moves for reduced-motion users */
+@media (prefers-reduced-motion: no-preference) {
+  .pantry-item--removed {
+    animation: pantry-fade 0.2s var(--ease);
+  }
+  @keyframes pantry-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+.pantry-noresult {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-1);
+}
+
+.pantry-noresult .btn {
+  margin-top: var(--s-3);
+}
+
+@media (min-width: 960px) {
+  .pantry-item {
+    min-height: 48px;
+  }
+}

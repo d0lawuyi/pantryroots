@@ -6,13 +6,16 @@ import { DishRow } from "@/components/DishRow";
 import { peopleById } from "@/data/dishes";
 import type { Match } from "@/lib/pantry";
 import { Icon } from "@/components/Icon";
-import { Meter, PageHeader, Plate, Section, formatMinutes } from "@/components/ui";
+import { Meter, PageHeader, Section, formatMinutes } from "@/components/ui";
+import { PlateArt } from "@/components/PlateArt";
+import { ShoppingListButton } from "@/components/ShoppingSheet";
+import { rankWithProfile } from "@/lib/profile";
 
 const plural = (n: number, one: string, many = one + "s") => `${n} ${n === 1 ? one : many}`;
 
 export function CookScreen({ ratings }: { ratings: Record<string, Record<string, number>> }) {
-  const { pantry, go, ask } = useApp();
-  const ranked = useMemo(() => rankDishes(pantry), [pantry]);
+  const { pantry, go, ask, profile, openShopping } = useApp();
+  const ranked = useMemo(() => rankWithProfile(rankDishes(pantry), profile), [pantry, profile]);
   const hero = pantry.length > 0 ? ranked[0] : undefined;
   const ready = ranked.filter((m) => m.need.length === 0);
   const close = ranked.filter((m) => m.need.length > 0 && m.need.length <= 2);
@@ -34,7 +37,7 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
 
   return (
     <div className="page">
-      <PageHeader title="Cook" lede={lede} />
+      <PageHeader title="Cook" lede={lede} action={<ShoppingListButton className="shop-trigger--mobile-only" onClick={openShopping} />} />
 
       {hero && <TonightHero match={hero} />}
 
@@ -132,7 +135,7 @@ function TonightHero({ match }: { match: Match }) {
             <span className="hero__time"><Icon name="clock" size={15} />{formatMinutes(dish.minutes)}</span>
           </p>
         </div>
-        <Plate tone={dish.tone} large />
+        <PlateArt dish={dish} size={64} />
       </div>
 
       <p className="hero__summary">{dish.summary}</p>

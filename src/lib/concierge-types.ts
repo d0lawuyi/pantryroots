@@ -50,6 +50,8 @@ export type ConciergeRequest = {
   location?: { lat: number; lng: number };
   zip?: string;
   timeZone?: string;
+  /** Short plain-text summary of the user's food roots and preferences from onboarding. */
+  profile?: string;
 };
 
 export type ConciergeResponse = { text: string; cards: Card[] };

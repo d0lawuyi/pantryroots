@@ -1,10 +1,14 @@
 import { createContext, useContext } from "react";
 import type { Dish } from "@/data/dishes";
+import type { Profile } from "@/lib/profile";
 
 export type Tab = "cook" | "pantry" | "explore" | "battles" | "neighbors";
 
 export type AppApi = {
   pantry: string[];
+  /** Food roots and preferences from onboarding. */
+  profile: Profile;
+  openShopping: () => void;
   addItems: (items: string[]) => void;
   removeItem: (item: string) => void;
   openDish: (id: string) => void;

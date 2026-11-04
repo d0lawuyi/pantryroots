@@ -16,6 +16,7 @@ export async function createShoppingList(title: string, items: string[]): Promis
       expires_in: 7,
       line_items: items.map((name) => ({ name, display_text: name })),
     }),
+    signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) throw new Error(`Instacart ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const data = (await res.json()) as { products_link_url?: string };

@@ -1,0 +1,12 @@
+/* PlateArt — illustrated dish plates (src/components/PlateArt.tsx).
+   The SVG draws its own rim and shadow from tokens; this only handles layout. */
+.plate-art {
+  display: block;
+  flex: none;
+  border-radius: 50%;
+}
+
+/* On the indigo Tonight hero, keep the soft halo the old swatch had. */
+.hero .plate-art {
+  box-shadow: 0 0 0 4px rgb(255 255 255 / 0.14);
+}

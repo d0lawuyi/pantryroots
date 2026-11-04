@@ -60,6 +60,7 @@ export async function searchStores(opts: {
         "places.displayName,places.formattedAddress,places.location,places.googleMapsUri,places.currentOpeningHours.openNow,places.currentOpeningHours.nextCloseTime",
     },
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(8000),
   });
   if (!res.ok) throw new Error(`Places ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const data = (await res.json()) as PlacesResponse;
@@ -105,6 +106,7 @@ async function driveMinutes(origin: LatLng, destinations: LatLng[]): Promise<(nu
       "X-Goog-FieldMask": "originIndex,destinationIndex,duration,condition",
     },
     body: JSON.stringify({ origins: [wp(origin)], destinations: destinations.map(wp), travelMode: "DRIVE" }),
+    signal: AbortSignal.timeout(6000),
   });
   if (!res.ok) throw new Error(`Routes ${res.status}`);
   const rows = (await res.json()) as { destinationIndex?: number; duration?: string; condition?: string }[];

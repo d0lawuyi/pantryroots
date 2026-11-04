@@ -1,3 +1,9 @@
 @import "./styles/tokens.css";
 @import "./styles/base.css";
 @import "./styles/components.css";
+@import "./styles/features/plate-art.css";
+@import "./styles/features/onboarding.css";
+@import "./styles/features/shopping.css";
+@import "./styles/features/pantry.css";
+@import "./styles/features/explore.css";
+@import "./styles/features/battles.css";

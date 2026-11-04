@@ -11,9 +11,9 @@ import { DISH_NAMES, TOOL_DEFS, runTool, type ToolContext } from "./_lib/tools.j
 const SYSTEM = `You are the PantryRoots Kitchen Concierge: a warm, practical cooking helper who knows food traditions by the people who cook them (Yoruba, Akan, Wolof, Amhara and many more), not just by country.
 
 You help with three things:
-1. Pantry scans. When the user sends a photo, call show_pantry_scan with what you see, then call match_dishes with those items as extra_items.
+1. Pantry scans. When the user sends a photo, call show_pantry_scan and match_dishes (with what you saw as extra_items) together in the same turn.
 2. What to cook. Always call match_dishes first. The curated dishes are: ${DISH_NAMES}. If the user wants other cuisines or matches are weak, you may call suggest_ai_dish once or twice for dishes from other traditions.
-3. Running out. When the user is out of an ingredient: call find_substitute; if found:false call show_substitute. Then call find_stores with the shop_type, then create_cart with the missing item(s).
+3. Running out. When the user is out of an ingredient, call find_substitute, find_stores and create_cart TOGETHER in the same turn (parallel tool calls) to save time. Only if find_substitute returns found:false, follow up with show_substitute.
 
 Rules:
 - Cards show the details. Keep your text short: 1–3 sentences, plain and friendly, no lists, no markdown headings.
@@ -61,6 +61,7 @@ function toGatewayMessages(req: ConciergeRequest): GatewayMessage[] {
     }
   });
   const facts = [`Current pantry: ${req.pantry.join(", ") || "empty"}.`];
+  if (req.profile) facts.push(`About the cook: ${req.profile.slice(0, 300)}. Favour dishes from their roots when choosing between similar matches, and use their traditions when writing AI dishes.`);
   facts.push(req.location ? "Location: shared." : req.zip ? `ZIP: ${req.zip}.` : "Location: not shared yet.");
   out.splice(1, 0, { role: "system", content: facts.join(" ") });
   return out;
@@ -72,30 +73,55 @@ const TRANSIENT = new Set([429, 500, 502, 503, 504]);
 
 // Once a model works in this warm instance, keep using it for later steps of the same conversation.
 let workingModel: string | null = null;
+// Set if the provider rejects the reasoning_effort hint, so we stop sending it.
+let skipReasoningHint = false;
 
-async function callGateway(messages: GatewayMessage[]) {
+/** Whole-request budget. Vercel's limit is 60s (vercel.json); stay well under it and return what we have. */
+const BUDGET_MS = 45_000;
+class OutOfTime extends Error {}
+
+async function callGateway(messages: GatewayMessage[], deadline: number) {
   const models = [...new Set([workingModel ?? ENV.model, ENV.model, ...ENV.fallbackModels])];
   let lastErr: (Error & { status?: number }) | null = null;
 
   for (const model of models) {
     for (let attempt = 0; attempt < 2; attempt++) {
-      const res = await fetch(`${ENV.aiBase}/chat/completions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${ENV.aiKey}` },
-        body: JSON.stringify({ model, messages, tools: TOOL_DEFS, tool_choice: "auto", max_tokens: 1400, temperature: 0.4 }),
-      });
+      const left = deadline - Date.now();
+      if (left < 4000) throw new OutOfTime("time budget used up");
+      const body: Record<string, unknown> = { model, messages, tools: TOOL_DEFS, tool_choice: "auto", max_tokens: 1400, temperature: 0.4 };
+      // Gemini "thinks" before answering by default; keep it short so the demo stays snappy.
+      if (!skipReasoningHint && ENV.aiBase.includes("googleapis.com")) body.reasoning_effort = "low";
+      let res: Response;
+      try {
+        res = await fetch(`${ENV.aiBase}/chat/completions`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${ENV.aiKey}` },
+          body: JSON.stringify(body),
+          signal: AbortSignal.timeout(Math.min(25_000, left - 2000)),
+        });
+      } catch (e) {
+        // Our own per-call timeout: treat like a busy model and move on.
+        lastErr = Object.assign(new Error(`gateway timeout: ${String(e).slice(0, 80)}`), { status: 504 });
+        console.warn("[concierge] model", model, "timed out");
+        break;
+      }
       if (res.ok) {
         workingModel = model;
         const data = await res.json();
         return data.choices?.[0]?.message as GatewayMessage | undefined;
       }
       const detail = (await res.text()).slice(0, 300);
+      if (res.status === 400 && body.reasoning_effort && /reasoning/i.test(detail)) {
+        skipReasoningHint = true;
+        attempt--;
+        continue;
+      }
       lastErr = Object.assign(new Error(`gateway ${res.status}: ${detail}`), { status: res.status });
       console.warn("[concierge] model", model, "attempt", attempt + 1, "->", res.status);
       // Auth problems won't fix themselves — stop immediately.
       if (res.status === 401 || res.status === 403) throw lastErr;
       // Busy: wait briefly and retry once; unknown model: go straight to the next one.
-      if (TRANSIENT.has(res.status) && attempt === 0) {
+      if (TRANSIENT.has(res.status) && attempt === 0 && deadline - Date.now() > 8000) {
         await sleep(1200);
         continue;
       }
@@ -137,30 +163,43 @@ export async function POST(request: Request): Promise<Response> {
   const messages = toGatewayMessages(req);
   const cards: Card[] = [];
   const ctx: ToolContext = { req, extraPantry: [] };
+  const deadline = Date.now() + BUDGET_MS;
 
   try {
-    for (let step = 0; step < 7; step++) {
-      const msg = await callGateway(messages);
+    for (let step = 0; step < 5; step++) {
+      // Running low on time but already have cards? Show them rather than risk a timeout.
+      if (cards.length && deadline - Date.now() < 10_000) break;
+      const msg = await callGateway(messages, deadline);
       if (!msg) break;
       messages.push({ role: "assistant", content: msg.content ?? null, tool_calls: msg.tool_calls });
       if (!msg.tool_calls?.length) {
         const text = typeof msg.content === "string" ? msg.content.trim() : "";
         return json({ text: text || (cards.length ? "Here's what I found." : "Sorry, I didn't catch that."), cards });
       }
-      for (const call of msg.tool_calls) {
-        let args = {};
-        try {
-          args = JSON.parse(call.function.arguments || "{}");
-        } catch {
-          /* model sent bad JSON — run with empty args */
-        }
-        const { result, card } = await runTool(call.function.name, args, ctx);
+      // Run this turn's tools in parallel (e.g. stores + cart at once), keep their order for the cards.
+      const results = await Promise.all(
+        msg.tool_calls.map((call) => {
+          let args = {};
+          try {
+            args = JSON.parse(call.function.arguments || "{}");
+          } catch {
+            /* model sent bad JSON — run with empty args */
+          }
+          return runTool(call.function.name, args, ctx);
+        }),
+      );
+      msg.tool_calls.forEach((call, i) => {
+        const { result, card } = results[i];
         if (card) cards.push(card);
         messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
-      }
+      });
     }
-    return json({ text: "Here's what I found.", cards });
+    return json({ text: cards.length ? "Here's what I found." : "That took too long. Try again.", cards });
   } catch (e) {
+    if (e instanceof OutOfTime || ((e as { status?: number }).status === 504 && cards.length)) {
+      if (cards.length) return json({ text: "Here's what I found so far.", cards });
+      return json({ error: "server_error", message: "The AI took too long to answer. Try again." }, 504);
+    }
     const status = (e as { status?: number }).status;
     // The gateway's own reason (e.g. "insufficient credits", "invalid API key", "model not found").
     const detail = String((e as Error).message ?? "").replace(/^gateway \d+: /, "").slice(0, 240);

@@ -4,7 +4,9 @@ import { substituteFor } from "@/data/substitutes";
 import { cleanItem, matchDish } from "@/lib/pantry";
 import { useApp } from "@/lib/app-context";
 import { Icon } from "@/components/Icon";
-import { Meter, Plate, Sheet, formatMinutes } from "@/components/ui";
+import { Meter, Sheet, formatMinutes } from "@/components/ui";
+import { PlateArt } from "@/components/PlateArt";
+import { AddToListButton } from "@/components/AddToListButton";
 
 export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const { pantry, addItems, ask, getDish, notify, startCooking } = useApp();
@@ -16,15 +18,7 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
   const originLine = people ? `${people.name}, ${people.area}` : dish.origin ?? "";
   const m = matchDish(dish, pantry);
 
-  async function copyList() {
-    const text = `${dish.name}: shopping list\n` + m.need.map((n) => `- ${cleanItem(n)}`).join("\n");
-    try {
-      await navigator.clipboard.writeText(text);
-      notify("Shopping list copied");
-    } catch {
-      notify("Couldn't copy — your browser blocked the clipboard");
-    }
-  }
+
 
   return (
     <Sheet
@@ -34,10 +28,7 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
         <div className="stack" style={{ gap: 8 }}>
           {m.need.length > 0 && (
             <div className="btn-row">
-              <button type="button" className="btn btn--secondary" onClick={copyList}>
-                <Icon name="copy" size={18} />
-                Copy list
-              </button>
+              <AddToListButton items={m.need.map(cleanItem)} dishName={dish.name} />
               <button type="button" className="btn btn--secondary" onClick={() => addItems(m.need.map(cleanItem))}>
                 I've got them
               </button>
@@ -51,7 +42,7 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
       }
     >
       <div className="dish-head">
-        <Plate tone={dish.tone} large />
+        <PlateArt dish={dish} size={56} />
         <div>
           <p className="small muted">{originLine}</p>
           <div className="facts" style={{ marginTop: 4 }}>

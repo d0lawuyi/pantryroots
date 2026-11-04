@@ -2,7 +2,8 @@ import { peopleById } from "@/data/dishes";
 import type { Match } from "@/lib/pantry";
 import { useApp } from "@/lib/app-context";
 import { Icon } from "./Icon";
-import { Meter, Plate, formatMinutes } from "./ui";
+import { Meter, formatMinutes } from "./ui";
+import { PlateArt } from "./PlateArt";
 
 export function DishRow({ match, showPeople = true }: { match: Match; showPeople?: boolean }) {
   const { openDish } = useApp();
@@ -18,7 +19,7 @@ export function DishRow({ match, showPeople = true }: { match: Match; showPeople
 
   return (
     <button type="button" className="row row--inset" onClick={() => openDish(dish.id)}>
-      <Plate tone={dish.tone} />
+      <PlateArt dish={dish} size={40} />
       <span className="row__body">
         <span className="row__title" style={{ display: "block" }}>{dish.name}</span>
         <span className="row__meta" style={{ display: "block" }}>

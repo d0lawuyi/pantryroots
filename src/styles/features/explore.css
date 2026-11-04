@@ -1,0 +1,237 @@
+/* ───────────────── Explore: filters, sort, views ───────────────── */
+
+.explore-controls {
+  display: grid;
+  gap: var(--s-3);
+  margin-bottom: var(--s-5);
+}
+
+/* Filter chips — horizontally scrollable on phones, wraps never. */
+.explore-filters {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  scroll-padding-inline: var(--s-4);
+}
+
+.explore-chip {
+  position: relative;
+  height: 36px;
+  padding: 0 var(--s-3);
+  transition: background-color 0.15s var(--ease), border-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.explore-chip[aria-pressed="true"] {
+  background: var(--indigo);
+  border-color: var(--indigo);
+  color: var(--ink-inverse);
+  padding-left: var(--s-3);
+}
+
+.explore-chip[aria-pressed="true"]:hover {
+  background: var(--indigo-hover);
+  border-color: var(--indigo-hover);
+}
+
+/* Visual chip is 36px; the tap target is 44px. */
+.explore-chip::after {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+
+.explore-chip__check {
+  flex: none;
+  margin-right: -2px;
+}
+
+.explore-chip:focus-visible,
+.explore-clear:focus-visible,
+.explore-empty .btn:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+/* Count + clear on one side, view + sort on the other. */
+.explore-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-1) var(--s-3);
+  padding-top: var(--s-2);
+  border-top: 1px solid var(--line);
+}
+
+.explore-count {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 44px;
+  margin: 0 var(--s-1);
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.explore-count strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.explore-clear {
+  min-height: 44px;
+  padding: 0 var(--s-1);
+}
+
+.explore-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+
+.explore-view .seg {
+  min-width: 220px;
+}
+
+.explore-sort {
+  position: relative;
+  display: block;
+  color: var(--ink-2);
+}
+
+.explore-sort > svg {
+  position: absolute;
+  top: 50%;
+  left: 11px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.explore-sort__select {
+  width: auto;
+  min-width: 150px;
+  height: 36px;
+  padding: 0 34px 0 34px;
+  appearance: none;
+  -webkit-appearance: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.explore-sort__caret {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  display: grid;
+  transform: translateY(-50%) rotate(90deg);
+  pointer-events: none;
+}
+
+/* Phone: view switch gets its own full-width line; count and sort share the next. */
+@media (max-width: 559px) {
+  .explore-tools {
+    display: contents;
+  }
+
+  .explore-view {
+    order: -1;
+    flex: 1 0 100%;
+  }
+
+  .explore-view .seg {
+    min-width: 0;
+  }
+
+  .explore-count {
+    flex: 1;
+  }
+}
+
+/* ───────────────── Results ───────────────── */
+
+/* "Uses plantain" caption under a row when the search hit an ingredient. */
+.explore-why {
+  margin: calc(var(--s-2) * -1) 0 0;
+  padding: 0 var(--s-4) var(--s-3) 64px;
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+/* Keep the inset hairline between rows even when a caption sits between them. */
+.explore-why + .row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: var(--row-inset, var(--s-4));
+  border-top: 1px solid var(--line);
+}
+
+/* Search match: subtle gold, never loud. */
+.explore-mark {
+  padding: 0 1px;
+  border-radius: 3px;
+  background: var(--gold-tint);
+  color: var(--gold-ink);
+  font-weight: inherit;
+}
+
+::highlight(explore-q) {
+  background-color: var(--gold-tint);
+  color: var(--gold-ink);
+}
+
+/* ───────────────── Empty state ───────────────── */
+
+.explore-empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-2);
+  padding: var(--s-8) var(--s-5);
+  text-align: center;
+  color: var(--ink-2);
+}
+
+.explore-empty strong {
+  max-width: 34ch;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.explore-empty p {
+  max-width: 40ch;
+  font-size: var(--fs-sm);
+}
+
+.explore-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+
+.explore-empty__actions .btn {
+  height: 44px;
+}
+
+.explore-empty__n {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explore-chip {
+    transition: none;
+  }
+}

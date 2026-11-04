@@ -5,7 +5,9 @@ import { matchDish } from "@/lib/pantry";
 import { useApp } from "@/lib/app-context";
 import { DishRow } from "./DishRow";
 import { Icon } from "./Icon";
-import { Plate, formatMinutes } from "./ui";
+import { formatMinutes } from "./ui";
+import { PlateArt } from "./PlateArt";
+import { AddToListButton } from "./AddToListButton";
 
 export function ConciergeCard({ card }: { card: Card }) {
   switch (card.type) {
@@ -100,7 +102,7 @@ function AiDishCard({ card }: { card: Extract<Card, { type: "aiDish" }> }) {
   return (
     <div className="ccard ccard--flush">
       <button type="button" className="row row--inset" onClick={() => openDish(card.dish.id)}>
-        <Plate tone={card.dish.tone} />
+        <PlateArt dish={{ ...card.dish, aiWritten: true }} size={40} />
         <span className="row__body">
           <span className="row__title" style={{ display: "block" }}>{card.dish.name}</span>
           <span className="row__meta" style={{ display: "block" }}>{card.dish.origin}, {formatMinutes(card.dish.minutes)}</span>
@@ -194,6 +196,9 @@ function CartCard({ card }: { card: Extract<Card, { type: "cart" }> }) {
           <a className="btn btn--secondary btn--sm" href={doordashSearchUrl(card.items[0] ?? "groceries")} target="_blank" rel="noreferrer">
             DoorDash
           </a>
+        </div>
+        <div style={{ marginTop: 8 }}>
+          <AddToListButton size="sm" className="btn--block" items={card.items} label="Add to my list" />
         </div>
       </div>
     </CardShell>

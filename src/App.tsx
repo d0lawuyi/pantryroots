@@ -13,6 +13,9 @@ import { DishSheet } from "@/screens/DishSheet";
 import { SwapSheet } from "@/screens/SwapSheet";
 import { Concierge } from "@/components/Concierge";
 import { CookMode } from "@/components/CookMode";
+import { Onboarding } from "@/components/Onboarding";
+import { ShoppingSheet, ShoppingListButton } from "@/components/ShoppingSheet";
+import { useProfile } from "@/lib/profile";
 import { dishById, type Dish } from "@/data/dishes";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
@@ -33,6 +36,8 @@ function tabFromHash(): Tab {
 export default function App() {
   const [tab, setTab] = useState<Tab>(tabFromHash);
   const [pantry, setPantry] = usePersistentState<string[]>("pantry", STARTER_PANTRY);
+  const [profile, setProfile] = useProfile();
+  const [shoppingOpen, setShoppingOpen] = useState(false);
   const [ratings, setRatings] = usePersistentState<Ratings>("ratings", {});
   const [votes, setVotes] = usePersistentState<VoteCounts>("votes", {});
   const [dishId, setDishId] = useState<string | null>(null);
@@ -83,10 +88,12 @@ export default function App() {
       },
       registerDish: (dish) => setAiDishes((m) => (m[dish.id] ? m : { ...m, [dish.id]: dish })),
       getDish: (id) => dishById[id] ?? aiDishes[id],
+      profile,
+      openShopping: () => { setDishId(null); setSwap(null); setShoppingOpen(true); },
       notify,
       go,
     }),
-    [pantry, setPantry, notify, go, aiDishes],
+    [pantry, setPantry, notify, go, aiDishes, profile],
   );
 
   const readyCount = useMemo(() => rankDishes(pantry).filter((m) => m.need.length === 0).length, [pantry]);
@@ -107,6 +114,7 @@ export default function App() {
               </a>
             ))}
           </nav>
+          <ShoppingListButton variant="sidebar" onClick={() => setShoppingOpen(true)} />
           <div className="sidebar__foot">
             <strong className="num">{readyCount}</strong>
             {readyCount === 1 ? "dish" : "dishes"} you can cook with your {pantry.length} pantry items
@@ -141,9 +149,16 @@ export default function App() {
       </div>
 
       {dishId && <DishSheet id={dishId} onClose={() => setDishId(null)} />}
+      {shoppingOpen && <ShoppingSheet onClose={() => setShoppingOpen(false)} />}
       {swap && <SwapSheet initial={swap.ingredient} onClose={() => setSwap(null)} />}
       {cookingId && api.getDish(cookingId) && <CookMode dish={api.getDish(cookingId)!} onClose={() => setCookingId(null)} />}
       {toast && <Toast message={toast} onDone={clearToast} />}
+      {!profile.done && (
+        <Onboarding
+          onDone={(p) => { setProfile(p); notify("Saved your cooking roots"); }}
+          onSkip={() => setProfile((p) => ({ ...p, done: true }))}
+        />
+      )}
     </AppContext.Provider>
   );
 }

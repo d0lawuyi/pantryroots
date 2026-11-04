@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import type { ChatTurn } from "@/lib/concierge-types";
 import { askConcierge, localRespond, resizeImage } from "@/lib/concierge-client";
 import { useSpeech } from "@/lib/use-speech";
+import { profileSummary } from "@/lib/profile";
 import { usePersistentState } from "@/lib/storage";
 import { useApp } from "@/lib/app-context";
 import { ConciergeCard } from "./ConciergeCards";
@@ -29,7 +30,7 @@ function getLocation(): Promise<Loc | null> {
 }
 
 export function Concierge({ open, onClose, pending }: { open: boolean; onClose: () => void; pending: { text: string; nonce: number } | null }) {
-  const { pantry, registerDish } = useApp();
+  const { pantry, registerDish, profile } = useApp();
   const [turns, setTurns] = usePersistentState<ChatTurn[]>("concierge", []);
   const [demo, setDemo] = usePersistentState<boolean>("demo", false);
   const [draft, setDraft] = useState("");
@@ -98,6 +99,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
       const res = await askConcierge({
         messages: history.map((t, i) => ({ role: t.role, text: t.text, image: i === history.length - 1 ? t.image : undefined })),
         pantry,
+        profile: profile.roots.length ? profileSummary(profile) : undefined,
         location: location ?? undefined,
         zip: zipInText ?? zip ?? undefined,
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
