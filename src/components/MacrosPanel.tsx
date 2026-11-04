@@ -144,7 +144,7 @@ export function MacrosPanel({ dish, onSetTargets }: { dish: Dish; onSetTargets?:
             const text = mfpText(dish.name, status.est, servings);
             if (await copyText(text)) {
               setManualCopy(null);
-              notify("Copied — paste it in MyFitnessPal's Quick Add or a custom food");
+              notify("Copied. Paste it into MyFitnessPal's Quick Add or a custom food");
             } else {
               setManualCopy(text);
             }

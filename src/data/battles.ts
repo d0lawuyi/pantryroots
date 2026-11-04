@@ -26,7 +26,7 @@ export const BATTLES: Battle[] = [
     contenders: [
       {
         id: "nigeria", dish: "Party Jollof", origin: "Yoruba, Nigeria", dishId: "party-jollof", rating: 1542,
-        notes: [{ label: "Rice", value: "Long-grain parboiled" }, { label: "Smoke", value: "High — burnt bottom" }, { label: "Signature", value: "Fried pepper base, bay leaf" }],
+        notes: [{ label: "Rice", value: "Long-grain parboiled" }, { label: "Smoke", value: "High, burnt bottom" }, { label: "Signature", value: "Fried pepper base, bay leaf" }],
       },
       {
         id: "ghana", dish: "Ghana Jollof", origin: "Akan, Ghana", dishId: "ghana-jollof", rating: 1531,

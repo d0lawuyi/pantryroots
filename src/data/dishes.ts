@@ -54,7 +54,7 @@ export const DISHES: Dish[] = [
       "Pound parsley, garlic, chili and a little onion into rof. Cut slits in the fish and pack them with it.",
       "Brown the fish in oil and set it aside. In the same oil, fry sliced onion and tomato paste until dark red.",
       "Add water, tamarind, the fish and the vegetables. Simmer until the vegetables are tender, then lift everything out.",
-      "Wash the broken rice and cook it in the broth, covered, until it has absorbed it. Let the bottom crisp — that's the xoon.",
+      "Wash the broken rice and cook it in the broth, covered, until it has absorbed it. Let the bottom crisp; that's the xoon.",
       "Serve the rice with the fish and vegetables on top, and lime on the side.",
     ],
   },
@@ -79,14 +79,14 @@ export const DISHES: Dish[] = [
       "Blend tomatoes, red bell pepper, scotch bonnet and onion. Boil the blend down until thick.",
       "Fry sliced onion and tomato paste in oil, add the reduced base, then thyme, curry powder, bay leaf and stock.",
       "Stir in washed parboiled rice with just enough stock to cover. Seal with foil and a lid and steam on low.",
-      "For the last few minutes turn the heat up and let the bottom catch. Don't stir it in — serve it on the side.",
+      "For the last few minutes turn the heat up and let the bottom catch. Don't stir it in. Serve it on the side.",
     ],
   },
   {
     id: "efo-riro", name: "Efo Riro", peopleId: "yoruba", minutes: 45, tone: "green",
     summary: "A rich spinach stew built on palm oil, peppers and iru (fermented locust beans).",
     ingredients: ["spinach", "palm oil", "iru", "scotch bonnet", "red bell pepper", "onion", "crayfish"],
-    technique: "Almost no water — the pepper and palm oil fry together until the oil rises to the top.",
+    technique: "Almost no water: the pepper and palm oil fry together until the oil rises to the top.",
     steps: [
       "Blanch the spinach, then squeeze out as much water as you can.",
       "Blend the peppers and onion coarsely and boil the mix down until thick.",
@@ -96,7 +96,7 @@ export const DISHES: Dish[] = [
   },
   {
     id: "amala", name: "Amala, Ewedu & Gbegiri", peopleId: "yoruba", minutes: 75, tone: "brown",
-    summary: "Yam-flour swallow served with jute-leaf soup and a smooth bean soup — the Ibadan classic.",
+    summary: "Yam-flour swallow served with jute-leaf soup and a smooth bean soup, the Ibadan classic.",
     ingredients: ["yam flour", "jute leaves", "black-eyed beans", "palm oil", "iru"],
     technique: "Whisk the ewedu until it stretches, and turn the amala hard so there are no lumps.",
     steps: [
@@ -158,7 +158,7 @@ export const DISHES: Dish[] = [
     id: "ghana-jollof", name: "Ghana Jollof", peopleId: "akan", minutes: 60, tone: "red",
     summary: "Fragrant basmati in a sweeter, ginger-forward tomato base, served with shito.",
     ingredients: ["basmati rice", "tomato", "tomato paste", "onion", "ginger", "garlic", "shito"],
-    technique: "Perfumed rice, cooked through but separate — the heat comes from shito on the side.",
+    technique: "Perfumed rice, cooked through but separate, with the heat coming from shito on the side.",
     steps: [
       "Fry onion, ginger and garlic in oil. Add tomato paste and blended tomatoes and cook down.",
       "Season with stock, curry powder and thyme.",
@@ -179,7 +179,7 @@ export const DISHES: Dish[] = [
   },
   {
     id: "fufu-light-soup", name: "Fufu & Light Soup", peopleId: "akan", minutes: 90, tone: "orange",
-    summary: "Pounded cassava and plantain with a light, peppery tomato soup — no palm oil.",
+    summary: "Pounded cassava and plantain with a light, peppery tomato soup and no palm oil.",
     ingredients: ["cassava", "plantain", "tomato", "garden eggs", "goat meat", "ginger", "onion"],
     technique: "The soup is blended and strained so it stays thin and clear.",
     steps: [
@@ -193,7 +193,7 @@ export const DISHES: Dish[] = [
     id: "doro-wat", name: "Doro Wat & Injera", peopleId: "habesha", minutes: 180, ahead: "Ferment teff 2–3 days", tone: "red",
     summary: "Chicken stew built on a mountain of slow-cooked onions, berbere and spiced butter, eaten with sour teff flatbread.",
     ingredients: ["teff flour", "onion", "berbere", "niter kibbeh", "chicken", "eggs"],
-    technique: "Cook the onions dry first, slowly, until deep brown — before any fat goes in.",
+    technique: "Cook the onions dry first, slowly, until deep brown, before any fat goes in.",
     steps: [
       "Injera: mix teff flour and water, ferment for 2–3 days, then cook thin on a hot pan, covered, on one side only.",
       "Cook a lot of finely chopped onion in a dry pot over low heat until deep brown.",
@@ -203,7 +203,7 @@ export const DISHES: Dish[] = [
   },
   {
     id: "shiro", name: "Shiro Wat", peopleId: "habesha", minutes: 30, tone: "orange",
-    summary: "Smooth chickpea-flour stew — the everyday and fasting-day staple.",
+    summary: "Smooth chickpea-flour stew, the everyday and fasting-day staple.",
     ingredients: ["shiro powder", "berbere", "onion", "garlic", "vegetable oil"],
     technique: "Whisk the shiro in gradually so it doesn't lump.",
     steps: [
@@ -214,7 +214,7 @@ export const DISHES: Dish[] = [
   },
   {
     id: "chechebsa", name: "Chechebsa", peopleId: "oromo", minutes: 25, tone: "gold",
-    summary: "Torn flatbread tossed in warm spiced butter and berbere — a breakfast dish.",
+    summary: "Torn flatbread tossed in warm spiced butter and berbere, eaten for breakfast.",
     ingredients: ["flour", "niter kibbeh", "berbere", "honey"],
     technique: "Tear the bread while it's hot so it soaks up the butter.",
     steps: [
@@ -228,7 +228,7 @@ export const DISHES: Dish[] = [
     id: "pilau", name: "Swahili Pilau", peopleId: "swahili", minutes: 75, tone: "brown",
     summary: "Coastal spiced rice with whole spices from the Indian Ocean trade routes. No tomato.",
     ingredients: ["basmati rice", "beef", "onion", "cardamom", "cloves", "cumin", "cinnamon"],
-    technique: "Take the onions to deep brown — that's where the colour comes from.",
+    technique: "Take the onions to deep brown. That's where the colour comes from.",
     steps: [
       "Fry sliced onions until deep brown.",
       "Add garlic, ginger and whole cumin, cardamom, cloves, cinnamon and black pepper.",

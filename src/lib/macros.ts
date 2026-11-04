@@ -50,7 +50,7 @@ export function scale(m: Macros, servings: number): Macros {
 /** Paste-ready line, e.g. "Party Jollof (PantryRoots, est.) — 1 serving: 620 kcal, P 18g, C 92g, F 20g". */
 export function mfpText(name: string, macros: Macros, servings = 1) {
   const m = scale(macros, servings);
-  return `${name} (PantryRoots, est.) — ${fmtServings(servings)}: ${fmt(m.calories)} kcal, P ${m.protein}g, C ${m.carbs}g, F ${m.fat}g`;
+  return `${name} (PantryRoots, est.), ${fmtServings(servings)}: ${fmt(m.calories)} kcal, P ${m.protein}g, C ${m.carbs}g, F ${m.fat}g`;
 }
 
 export function validTargets(t: Partial<Record<MacroKey, number>>): t is MacroTargets {

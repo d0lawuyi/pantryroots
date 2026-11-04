@@ -75,7 +75,7 @@ export function ShoppingSheet({ onClose }: { onClose: () => void }) {
       await navigator.clipboard.writeText(listAsText(items));
       notify("Shopping list copied");
     } catch {
-      notify("Couldn't copy — your browser blocked the clipboard");
+      notify("Couldn't copy: your browser blocked the clipboard");
     }
   }
 
@@ -155,7 +155,7 @@ export function ShoppingSheet({ onClose }: { onClose: () => void }) {
           {open.length === 0 && (
             <div className="shop-done" role="status">
               <Icon name="check" size={20} strokeWidth={2.25} />
-              You've got everything on your list.
+              You've got everything on your list
             </div>
           )}
 

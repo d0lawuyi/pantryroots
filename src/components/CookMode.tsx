@@ -215,7 +215,7 @@ export function CookMode({ dish, onClose }: { dish: Dish; onClose: () => void })
       <main className="cook__body">
         {index < 0 && (
           <div className="cook__ready">
-            <h2 className="cook__step">Get everything out first.</h2>
+            <h2 className="cook__step">Get everything out first</h2>
             <ul className="cook__ings">
               {dish.ingredients.map((ing) => {
                 const has = match.have.includes(ing);
@@ -257,7 +257,7 @@ export function CookMode({ dish, onClose }: { dish: Dish; onClose: () => void })
 
         {index >= n && (
           <div className="cook__current">
-            <p className="cook__step">Enjoy your {dish.name}.</p>
+            <p className="cook__step">Enjoy your {dish.name}</p>
             <p className="muted" style={{ marginTop: 12 }}>Tap Finish to go back to your kitchen.</p>
             <div style={{ marginTop: 24 }}>
               <ShareButton kind="dish" dish={dish} cooked label="Share what you cooked" />

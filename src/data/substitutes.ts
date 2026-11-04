@@ -35,11 +35,11 @@ export const SUBSTITUTES: Record<string, Substitute> = {
   },
   "broken rice": {
     swap: "Jasmine rice, pulsed briefly in a blender",
-    tradeoff: "Works well — broken jasmine is what many Senegalese cooks use abroad.",
+    tradeoff: "Works well. Broken jasmine is what many Senegalese cooks use abroad.",
     essential: false, shop: "Asian market", search: "broken jasmine rice",
   },
   "teff flour": {
-    swap: "Half teff, half self-raising flour — or all wheat in a pinch",
+    swap: "Half teff, half self-raising flour, or all wheat in a pinch",
     tradeoff: "Without teff, injera loses its sourness and colour.",
     essential: true, shop: "Ethiopian market", search: "teff flour",
     tip: "Ivory teff is milder, brown teff is nuttier.",
@@ -73,12 +73,12 @@ export const SUBSTITUTES: Record<string, Substitute> = {
   },
   "niter kibbeh": {
     swap: "Butter warmed with garlic, ginger, cardamom and fenugreek, then strained",
-    tradeoff: "A good homemade version — this is how many people make it anyway.",
+    tradeoff: "A good homemade version, and it's how many people make it anyway.",
     essential: false, shop: "Ethiopian market", search: "niter kibbeh",
   },
   "xawaash": {
     swap: "Cumin, coriander, black pepper, cardamom and cinnamon, toasted and ground",
-    tradeoff: "This is the blend — make it at home.",
+    tradeoff: "This is the blend, so make it at home.",
     essential: false, shop: "Somali or halal grocery", search: "xawaash spice",
   },
   "shito": {

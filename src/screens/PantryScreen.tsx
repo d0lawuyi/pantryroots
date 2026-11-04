@@ -400,7 +400,7 @@ export function PantryScreen() {
         </div>
       </Section>
 
-      <Section title="Look up a barcode" note="Product data from Open Food Facts.">
+      <Section title="Look up a barcode" note="Product data from Open Food Facts">
         <div className="group" style={{ padding: 16 }}>
           <form onSubmit={findProduct} className="input-row">
             <label htmlFor="barcode" className="visually-hidden">Barcode number</label>

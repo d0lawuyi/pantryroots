@@ -189,7 +189,7 @@ export function ShareButton(props: Props) {
               height={1350}
               alt={props.kind === "dish" ? `Share card for ${props.dish.name}` : `Share card: my ${props.battleTitle.toLowerCase()} ranking`}
             />
-            <figcaption className="share-preview__note">Sized 4:5 for Instagram, WhatsApp status and most feeds.</figcaption>
+            <figcaption className="share-preview__note">Sized 4:5 for Instagram, WhatsApp status and most feeds</figcaption>
           </figure>
         </Sheet>
       )}
