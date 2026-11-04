@@ -293,3 +293,289 @@
     animation: none;
   }
 }
+
+/* ───────────────── Scan a recipe card ───────────────── */
+
+.fam-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+/* Segmented choice at the top of the sheet: full touch targets */
+.fam-mode {
+  margin-bottom: var(--s-4);
+}
+
+.fam-mode .seg__opt {
+  height: 44px;
+  font-size: var(--fs-md);
+}
+
+.fam-mode .seg__opt:focus-visible,
+.fam-link:focus-visible,
+.fam-read summary:focus-visible,
+.fam-source__thumb:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+/* Pick a photo */
+.fam-pick {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-1);
+  padding: var(--s-6) var(--s-4) var(--s-5);
+  text-align: center;
+  border: 1.5px dashed color-mix(in srgb, var(--indigo) 40%, var(--line));
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.fam-pick__glyph {
+  color: var(--indigo-text);
+  margin-bottom: var(--s-1);
+}
+
+.fam-pick__title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.fam-pick__text {
+  max-width: 34ch;
+}
+
+.fam-pick__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+
+.fam-link {
+  justify-self: start;
+  min-height: 44px;
+  padding: 0 var(--s-1);
+  color: var(--indigo-text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  border-radius: var(--r-sm);
+}
+
+.fam-link:hover {
+  text-decoration: underline;
+}
+
+/* The photo on the failure screen */
+.fam-photo {
+  display: block;
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  border-radius: var(--r-lg);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+}
+
+/* Reading: the photo next to a skeleton of the card being written */
+.fam-reading {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-4);
+}
+
+.fam-reading__photo {
+  flex: none;
+  display: block;
+  width: 112px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  transform: rotate(-2deg);
+}
+
+/* Scanned preview */
+.fam-preview__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.fam-card-thumb {
+  flex: none;
+  align-self: flex-start;
+  width: 56px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  border: 3px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--line), 0 2px 6px rgb(0 0 0 / 0.12);
+  transform: rotate(3deg);
+}
+
+.fam-from {
+  margin-top: var(--s-4);
+}
+
+.fam-sample {
+  display: grid;
+  gap: 4px;
+  margin-bottom: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+}
+
+.fam-sample__badge {
+  justify-self: start;
+  padding: 2px var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--gold-tint);
+  color: var(--gold-ink);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+
+.fam-unclear {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--gold-tint);
+  color: var(--gold-ink);
+  font-size: 0.9em;
+  font-weight: 600;
+}
+
+/* "What Muse read": collapsible transcript */
+.fam-read {
+  margin-top: var(--s-6);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.fam-read summary {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 var(--s-4);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--r-lg);
+  list-style: none;
+}
+
+.fam-read summary::-webkit-details-marker {
+  display: none;
+}
+
+.fam-read summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-right: 1.75px solid currentColor;
+  border-bottom: 1.75px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  color: var(--ink-3);
+  transition: transform 0.15s var(--ease);
+}
+
+.fam-read[open] summary::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+
+.fam-read[open] > :not(summary) {
+  margin: 0 var(--s-4) var(--s-3);
+}
+
+.fam-transcript {
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.fam-transcript br {
+  display: block;
+  content: "";
+  margin-top: var(--s-2);
+}
+
+/* Original card on a saved recipe (dish sheet) */
+.fam-source {
+  margin-top: var(--s-4);
+}
+
+.fam-source__row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.fam-source__thumb {
+  flex: none;
+  width: 48px;
+  height: 60px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+}
+
+.fam-source__thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fam-source__title {
+  font-weight: 600;
+}
+
+.fam-source__big {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  margin-top: var(--s-3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+}
+
+.fam-read--compact {
+  margin-top: var(--s-3);
+}
+
+/* Saved list: a tiny copy of the original card */
+.fam-row__card {
+  flex: none;
+  width: 30px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  transform: rotate(3deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fam-read summary::after {
+    transition: none;
+  }
+}
+
+.fam-preview__meta {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: var(--s-3);
+}
+
+.fam-preview__meta .fam-preview__time {
+  margin-left: 0;
+}

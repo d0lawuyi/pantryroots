@@ -100,6 +100,9 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
       )}
 
       <FamilyRecipesSection />
+      <p className="xs muted" style={{ textAlign: "center", marginTop: 24 }}>
+        <a className="link" href="/welcome/">See how PantryRoots works</a>
+      </p>
 
       <Section>
         <div className="group">

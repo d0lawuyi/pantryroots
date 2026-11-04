@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 import type { Dish } from "@/data/dishes";
 import type { Profile } from "@/lib/profile";
+import type { ScanMode } from "@/lib/concierge-types";
 
 export type Tab = "cook" | "pantry" | "explore" | "battles" | "neighbors";
 
@@ -17,8 +18,11 @@ export type AppApi = {
   openSwap: (ingredient?: string) => void;
   /** Full-screen, step-by-step cooking view. */
   startCooking: (id: string) => void;
-  /** Open the concierge, optionally sending a message straight away. */
-  ask: (prompt?: string, image?: string) => void;
+  /**
+   * Open the concierge, optionally sending a message straight away.
+   * `images`: one data URL or several (video-sweep frames); `mode` says what they are.
+   */
+  ask: (prompt?: string, images?: string | string[], mode?: ScanMode) => void;
   /** Make an AI-written dish openable in the dish sheet. */
   registerDish: (dish: Dish) => void;
   getDish: (id: string) => Dish | undefined;

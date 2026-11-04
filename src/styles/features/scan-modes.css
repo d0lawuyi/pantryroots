@@ -1,0 +1,144 @@
+/* ───────────────── Scan modes: photo, video sweep, receipt ───────────────── */
+
+/* The hero card: the dashed indigo panel now holds the photo action and two alternatives. */
+.scan-modes:not(.scan-modes--compact) {
+  margin-bottom: var(--s-4);
+  padding: var(--s-1) var(--s-3) var(--s-3);
+  border: 1.5px dashed color-mix(in srgb, var(--indigo-text) 45%, transparent);
+  border-radius: var(--r-xl);
+  background: var(--indigo-tint);
+  color: var(--indigo-text);
+}
+
+.scan-modes .scan-modes__main {
+  margin: 0;
+  padding: var(--s-3) var(--s-2) var(--s-3) var(--s-1);
+  border: 0;
+  border-radius: var(--r-lg);
+  background: transparent;
+}
+
+.scan-modes .scan-modes__main:hover {
+  background: color-mix(in srgb, var(--indigo-text) 6%, transparent);
+}
+
+.scan-modes__alts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-2);
+}
+
+.scan-alt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid color-mix(in srgb, var(--indigo-text) 18%, transparent);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  color: var(--indigo-text);
+  text-align: left;
+  transition: border-color 0.15s var(--ease), background-color 0.15s var(--ease);
+}
+
+.scan-alt:not(:disabled):hover {
+  border-color: color-mix(in srgb, var(--indigo-text) 45%, transparent);
+}
+
+.scan-alt:disabled,
+.scan-modes .scan-modes__main:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.scan-alt__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--indigo-text);
+}
+
+.scan-alt__body {
+  min-width: 0;
+}
+
+.scan-alt__title {
+  display: block;
+  font-size: var(--fs-md);
+  font-weight: 650;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.scan-alt__sub {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+  line-height: 1.3;
+}
+
+.scan-modes__status {
+  margin: var(--s-2) var(--s-1) 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--indigo-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.scan-modes__status:empty {
+  display: none;
+}
+
+/* Compact version used inside the Pantry screen's photo section. */
+.scan-modes--compact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.scan-modes__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-2);
+}
+
+.scan-modes--compact .scan-modes__status {
+  margin: 0;
+}
+
+/* Narrow phones: stack the subtitle under the title less tightly. */
+@media (max-width: 349px) {
+  .scan-alt__sub {
+    display: none;
+  }
+}
+
+/* ───────────────── Concierge bubbles: receipt and sweep frames ───────────────── */
+
+.bubble__img--receipt {
+  width: 120px;
+  max-height: 200px;
+  object-fit: cover;
+  object-position: top;
+  background: var(--surface);
+}
+
+.bubble__strip {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 6px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgb(0 0 0 / 0.22);
+  overflow: hidden;
+}
+
+.bubble__frame {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 44px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+}

@@ -18,6 +18,7 @@ import { ShoppingSheet, ShoppingListButton } from "@/components/ShoppingSheet";
 import { useProfile } from "@/lib/profile";
 import { WeekPlanSheet, CalendarIcon } from "@/components/WeekPlanSheet";
 import { dishById, type Dish } from "@/data/dishes";
+import type { PendingAsk } from "@/lib/concierge-types";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "cook", label: "Cook", icon: "cook" },
@@ -47,7 +48,7 @@ export default function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [conciergeOpen, setConciergeOpen] = useState(false);
   const [cookingId, setCookingId] = useState<string | null>(null);
-  const [pendingAsk, setPendingAsk] = useState<{ text: string; image?: string; nonce: number } | null>(null);
+  const [pendingAsk, setPendingAsk] = useState<PendingAsk | null>(null);
   const [aiDishes, setAiDishes] = useState<Record<string, Dish>>({});
 
   useEffect(() => {
@@ -82,11 +83,12 @@ export default function App() {
       openDish: (id) => { setSwap(null); setDishId(id); },
       openSwap: (ingredient) => { setDishId(null); setSwap({ ingredient }); },
       startCooking: (id) => { setDishId(null); setSwap(null); setCookingId(id); },
-      ask: (prompt, image) => {
+      ask: (prompt, images, mode) => {
         setDishId(null);
         setSwap(null);
         setConciergeOpen(true);
-        if (prompt || image) setPendingAsk({ text: prompt ?? "", image, nonce: Date.now() });
+        const list = images === undefined ? undefined : Array.isArray(images) ? images : [images];
+        if (prompt || list?.length) setPendingAsk({ text: prompt ?? "", images: list?.length ? list : undefined, mode, nonce: Date.now() });
       },
       registerDish: (dish) => setAiDishes((m) => (m[dish.id] ? m : { ...m, [dish.id]: dish })),
       getDish: (id) => dishById[id] ?? aiDishes[id],
@@ -122,6 +124,9 @@ export default function App() {
             Week plan
           </button>
           <ShoppingListButton variant="sidebar" onClick={() => setShoppingOpen(true)} />
+          <a className="sidebar__item" href="/welcome/">
+            About PantryRoots
+          </a>
           <div className="sidebar__foot">
             <strong className="num">{readyCount}</strong>
             {readyCount === 1 ? "dish" : "dishes"} you can cook with your {pantry.length} pantry items

@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>PantryRoots — Cook from your roots</title>
+  <meta name="description" content="PantryRoots is a kitchen concierge for West and East African home cooking, built on Meta Muse. Scan your kitchen, see what you can cook from 23 dishes across 12 peoples, and get a real swap when you run out." />
+  <meta name="theme-color" content="#0e1016" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="PantryRoots" />
+  <meta property="og:title" content="PantryRoots — Cook from your roots" />
+  <meta property="og:description" content="Cook West and East African home food from what's already in your kitchen, organised by the peoples who cook it. Built on Meta Muse." />
+  <meta property="og:url" content="https://pantryroots-53dk.vercel.app/welcome/" />
+  <meta property="og:image" content="https://pantryroots-53dk.vercel.app/welcome/img/app-cook.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+  <a class="skip" href="#start">Skip to get started</a>
+
+  <header class="bar">
+    <a class="wordmark" href="#hero" aria-label="PantryRoots, back to top">
+      <img src="/favicon.svg" alt="" width="28" height="28" />
+      <span>PantryRoots</span>
+    </a>
+    <a class="btn btn--gold btn--small" href="/#/cook">Open the app</a>
+  </header>
+
+  <nav class="dots" aria-label="Slides">
+    <ol>
+      <li><a href="#hero" aria-label="Slide 1: Cook from your roots"><span></span></a></li>
+      <li><a href="#problem" aria-label="Slide 2: Countries are not kitchens"><span></span></a></li>
+      <li><a href="#scan" aria-label="Slide 3: Scan your kitchen"><span></span></a></li>
+      <li><a href="#cook" aria-label="Slide 4: Cook what's there"><span></span></a></li>
+      <li><a href="#out" aria-label="Slide 5: Out of something"><span></span></a></li>
+      <li><a href="#family" aria-label="Slide 6: Keep family recipes"><span></span></a></li>
+      <li><a href="#peoples" aria-label="Slide 7: Peoples, not countries"><span></span></a></li>
+      <li><a href="#muse" aria-label="Slide 8: Built on Meta Muse"><span></span></a></li>
+      <li><a href="#start" aria-label="Slide 9: Get started"><span></span></a></li>
+    </ol>
+  </nav>
+
+  <main class="deck">
+    <!-- 1. Hero -->
+    <section class="slide hero" id="hero" aria-labelledby="hero-title">
+      <div class="hero__stage" aria-roledescription="carousel" aria-label="Dishes cooked in PantryRoots">
+        <figure class="hero__slide media is-on" data-dish="party-jollof" data-label="Party Jollof, Yoruba">
+          <img class="media__plate" src="img/plates/party-jollof.svg" alt="Illustration of Party Jollof" width="512" height="512" fetchpriority="high" />
+        </figure>
+        <figure class="hero__slide media" data-dish="doro-wat" data-label="Doro Wat & Injera, Amhara & Tigray">
+          <img class="media__plate" src="img/plates/doro-wat.svg" alt="Illustration of Doro Wat and Injera" width="512" height="512" loading="lazy" />
+        </figure>
+        <figure class="hero__slide media" data-dish="thieboudienne" data-label="Thieboudienne, Wolof">
+          <img class="media__plate" src="img/plates/thieboudienne.svg" alt="Illustration of Thieboudienne" width="512" height="512" loading="lazy" />
+        </figure>
+        <figure class="hero__slide media" data-dish="egusi" data-label="Egusi Soup, Igbo">
+          <img class="media__plate" src="img/plates/egusi.svg" alt="Illustration of Egusi Soup" width="512" height="512" loading="lazy" />
+        </figure>
+        <figure class="hero__slide media" data-dish="pilau" data-label="Swahili Pilau, Swahili Coast">
+          <img class="media__plate" src="img/plates/pilau.svg" alt="Illustration of Swahili Pilau" width="512" height="512" loading="lazy" />
+        </figure>
+      </div>
+      <div class="scrim" aria-hidden="true"></div>
+
+      <div class="slide__inner hero__copy">
+        <p class="badge rise" style="--i:0"><span class="badge__dot" aria-hidden="true"></span>Built on Meta Muse</p>
+        <h1 class="display rise" id="hero-title" style="--i:1">Cook from your roots, with what you already have.</h1>
+        <p class="lede rise" style="--i:2">A kitchen concierge for West and East African home food. Show it your kitchen and it tells you what you can cook tonight, from 23 dishes across 12 peoples.</p>
+        <div class="cta-row rise" style="--i:3">
+          <a class="btn btn--gold" href="/#/cook">Open the app</a>
+          <a class="btn btn--ghost" href="#scan" data-goto="scan">See how it works</a>
+        </div>
+      </div>
+
+      <div class="hero__caption">
+        <p aria-live="polite"><span class="hero__now">Party Jollof, Yoruba</span></p>
+        <button class="hero__pause" type="button" aria-pressed="false" aria-label="Pause the dishes">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-pause" d="M9 6v12M15 6v12"/><path class="i-play" d="M8 5.5v13l10.5-6.5z"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. The problem -->
+    <section class="slide problem" id="problem" aria-labelledby="problem-title">
+      <div class="slide__inner split">
+        <div class="split__text">
+          <h2 class="display rise" id="problem-title" style="--i:0">Recipe apps know countries. Not kitchens.</h2>
+          <p class="lede rise" style="--i:1">A Yoruba pantry and an Igbo pantry are not the same pantry. PantryRoots files food under the peoples who cook it, and starts from what is already on your shelf.</p>
+          <div class="relabel rise" style="--i:2" aria-label="Nigerian becomes Yoruba, Igbo and Hausa-Fulani. Kenyan becomes Kikuyu, Luo and Swahili Coast.">
+            <p aria-hidden="true"><s>Nigerian</s> <span>Yoruba, Igbo, Hausa-Fulani</span></p>
+            <p aria-hidden="true"><s>Kenyan</s> <span>Kikuyu, Luo, Swahili Coast</span></p>
+          </div>
+        </div>
+        <figure class="problem__plate media rise" style="--i:1" data-dish="efo-riro" data-label="Efo Riro, Yoruba">
+          <img class="media__plate" src="img/plates/efo-riro.svg" alt="Illustration of Efo Riro" width="512" height="512" loading="lazy" />
+          <figcaption>Efo Riro, Yoruba</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- 3. Step 1 -->
+    <section class="slide step" id="scan" aria-labelledby="scan-title">
+      <div class="slide__inner split">
+        <div class="split__text">
+          <p class="step__num rise" style="--i:0" aria-hidden="true">01</p>
+          <h2 class="display display--step rise" id="scan-title" style="--i:1"><span class="visually-hidden">Step 1. </span>Scan your kitchen.</h2>
+          <p class="lede rise" style="--i:2">Photograph a shelf, sweep the fridge in a short video, or snap a grocery receipt. Your pantry fills in, and anything going off soon is flagged to use first.</p>
+        </div>
+        <div class="phone rise" style="--i:2">
+          <div class="phone__screen" data-label="Your pantry, from one photo"><img src="img/app-scan.jpg" alt="PantryRoots concierge after a pantry photo: eight items found, with plantain, spinach and garden eggs marked use soon" width="390" height="844" loading="lazy" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Step 2 -->
+    <section class="slide step" id="cook" aria-labelledby="cook-title">
+      <div class="slide__inner split">
+        <div class="split__text">
+          <p class="step__num rise" style="--i:0" aria-hidden="true">02</p>
+          <h2 class="display display--step rise" id="cook-title" style="--i:1"><span class="visually-hidden">Step 2. </span>Cook what's there.</h2>
+          <p class="lede rise" style="--i:2">Dishes are ranked by your pantry and your roots. The gold match meter shows, ingredient by ingredient, what you already have. Cook mode walks you through each step and starts the timers for you.</p>
+        </div>
+        <div class="phones rise" style="--i:2">
+          <div class="phone phone--back">
+            <div class="phone__screen" data-label="Party Jollof"><img src="img/app-dish.jpg" alt="Party Jollof dish sheet with where it comes from, how to say it, and 8 of 8 ingredients in the pantry" width="390" height="844" loading="lazy" /></div>
+          </div>
+          <div class="phone">
+            <div class="phone__screen" data-label="Tonight's best match"><img src="img/app-cook.jpg" alt="Cook screen: tonight's best match is Party Jollof, with a full gold match meter and a Start cooking button" width="390" height="844" loading="lazy" /></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Step 3 -->
+    <section class="slide step" id="out" aria-labelledby="out-title">
+      <div class="slide__inner split">
+        <div class="split__text">
+          <p class="step__num rise" style="--i:0" aria-hidden="true">03</p>
+          <h2 class="display display--step rise" id="out-title" style="--i:1"><span class="visually-hidden">Step 3. </span>Out of something?</h2>
+          <p class="lede rise" style="--i:2">Say "I'm out of palm oil." You get an honest swap, the nearest open shops with drive time, and delivery through Instacart, Walmart or DoorDash.</p>
+        </div>
+        <div class="phone rise" style="--i:2">
+          <div class="phone__screen" data-label="Out of palm oil"><img src="img/app-outof.jpg" alt="Concierge reply to I'm out of palm oil: a swap card with cheapest, most authentic and fastest options, then nearest shops with directions" width="390" height="844" loading="lazy" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Step 4 -->
+    <section class="slide step" id="family" aria-labelledby="family-title">
+      <div class="slide__inner split">
+        <div class="split__text">
+          <p class="step__num rise" style="--i:0" aria-hidden="true">04</p>
+          <h2 class="display display--step rise" id="family-title" style="--i:1"><span class="visually-hidden">Step 4. </span>Keep grandma's recipe.</h2>
+          <p class="lede rise" style="--i:2">Scan her handwritten card. Muse reads the handwriting and turns it into a recipe you can cook from, in her words.</p>
+          <p class="aside rise" style="--i:3">Also in the app: a shopping list, a week plan, and macros you can copy into MyFitnessPal.</p>
+        </div>
+        <div class="phone rise" style="--i:2">
+          <div class="phone__screen" data-label="Mama's Efo Riro"><img src="img/app-family.jpg" alt="Family recipe sheet showing Mama's Efo Riro from Grandma Bisi, with her quote and the ingredients, labelled as a demo-mode sample reading" width="390" height="844" loading="lazy" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Peoples -->
+    <section class="slide peoples" id="peoples" aria-labelledby="peoples-title">
+      <div class="slide__inner peoples__inner">
+        <div class="peoples__head">
+          <h2 class="display rise" id="peoples-title" style="--i:0">Peoples, not countries.</h2>
+          <p class="lede rise" style="--i:1">23 curated dishes from 12 peoples across West and East Africa.</p>
+        </div>
+        <ul class="mosaic" role="list">
+          <li class="tile media rise" style="--i:1" data-dish="thieboudienne"><img class="media__plate" src="img/plates/thieboudienne.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Thieboudienne</b> Wolof</p></li>
+          <li class="tile media rise" style="--i:1" data-dish="party-jollof"><img class="media__plate" src="img/plates/party-jollof.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Party Jollof</b> Yoruba</p></li>
+          <li class="tile media rise" style="--i:2" data-dish="egusi"><img class="media__plate" src="img/plates/egusi.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Egusi Soup</b> Igbo</p></li>
+          <li class="tile media rise" style="--i:2" data-dish="suya"><img class="media__plate" src="img/plates/suya.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Suya</b> Hausa-Fulani</p></li>
+          <li class="tile media rise" style="--i:2" data-dish="waakye"><img class="media__plate" src="img/plates/waakye.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Waakye</b> Akan</p></li>
+          <li class="tile media rise" style="--i:3" data-dish="doro-wat"><img class="media__plate" src="img/plates/doro-wat.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Doro Wat &amp; Injera</b> Amhara &amp; Tigray</p></li>
+          <li class="tile media rise" style="--i:3" data-dish="chechebsa"><img class="media__plate" src="img/plates/chechebsa.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Chechebsa</b> Oromo</p></li>
+          <li class="tile media rise" style="--i:3" data-dish="pilau"><img class="media__plate" src="img/plates/pilau.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Swahili Pilau</b> Swahili Coast</p></li>
+          <li class="tile media rise" style="--i:4" data-dish="githeri"><img class="media__plate" src="img/plates/githeri.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Githeri</b> Kikuyu</p></li>
+          <li class="tile media rise" style="--i:4" data-dish="ugali-tilapia"><img class="media__plate" src="img/plates/ugali-tilapia.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Ugali &amp; Fried Tilapia</b> Luo</p></li>
+          <li class="tile media rise" style="--i:4" data-dish="matooke"><img class="media__plate" src="img/plates/matooke.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Matooke &amp; Luwombo</b> Baganda</p></li>
+          <li class="tile media rise" style="--i:5" data-dish="bariis"><img class="media__plate" src="img/plates/bariis.svg" alt="" loading="lazy" width="512" height="512" /><p><b>Bariis Iskukaris</b> Somali</p></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 8. Muse -->
+    <section class="slide muse" id="muse" aria-labelledby="muse-title">
+      <div class="slide__inner muse__inner">
+        <div class="muse__head">
+          <h2 class="display rise" id="muse-title" style="--i:0">Built on Meta Muse.</h2>
+          <p class="lede rise" style="--i:1">PantryRoots runs on Meta's Muse Spark through the Meta Model API. Here is what it does in the kitchen.</p>
+        </div>
+        <ol class="abilities" role="list">
+          <li class="rise" style="--i:1"><h3>Sees your kitchen</h3><p>Inventories a pantry from a photo, a short video sweep or a receipt.</p></li>
+          <li class="rise" style="--i:2"><h3>Reads handwriting</h3><p>Turns a family recipe card into a recipe, keeping the cook's words.</p></li>
+          <li class="rise" style="--i:2"><h3>Judges freshness</h3><p>Spots what is about to turn, so you cook it first.</p></li>
+          <li class="rise" style="--i:3"><h3>Runs an agent</h3><p>Finds a swap, nearby shops and a delivery cart with parallel tool calls in one turn.</p></li>
+          <li class="rise" style="--i:3"><h3>Answers in structure</h3><p>Replies come back as structured data the app checks before it shows a card.</p></li>
+          <li class="rise" style="--i:4"><h3>Knows the food</h3><p>Reasons about each dish as the people who cook it do, not as "African food".</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 9. Get started -->
+    <section class="slide start" id="start" aria-labelledby="start-title">
+      <div class="slide__inner start__inner">
+        <div class="start__text">
+          <h2 class="display rise" id="start-title" style="--i:0">Your kitchen is ready.</h2>
+          <ol class="steps3" role="list">
+            <li class="rise" style="--i:1"><span aria-hidden="true">1</span><p><b>Open the site</b> on your phone.</p></li>
+            <li class="rise" style="--i:2"><span aria-hidden="true">2</span><p><b>Add to Home Screen</b> so it opens like an app.</p></li>
+            <li class="rise" style="--i:3"><span aria-hidden="true">3</span><p><b>Scan your kitchen</b> and see what you can cook tonight.</p></li>
+          </ol>
+          <div class="cta-row rise" style="--i:4">
+            <a class="btn btn--gold btn--big" href="/#/cook">Open the app</a>
+          </div>
+        </div>
+        <figure class="qr rise" style="--i:3">
+          <img src="img/qr.png" alt="QR code that opens pantryroots-53dk.vercel.app" width="296" height="296" loading="lazy" />
+          <figcaption>Scan to open on your phone<br /><span>pantryroots-53dk.vercel.app</span></figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <footer class="foot" aria-labelledby="foot-title">
+      <h2 class="visually-hidden" id="foot-title">About this page</h2>
+      <div class="foot__inner">
+        <p class="foot__brand"><img src="/favicon.svg" alt="" width="22" height="22" /> PantryRoots. Build for Your World.</p>
+        <div class="foot__credits">
+          <p>Dish illustrations are drawn by PantryRoots from each dish's own recipe. App screens are captured from the app in demo mode, which uses sample answers and sample stores.</p>
+          <ul class="credits" role="list" hidden></ul>
+        </div>
+        <p class="foot__links"><a href="/#/cook">Open the app</a> <a href="#hero" data-goto="hero">Back to top</a></p>
+      </div>
+    </footer>
+  </main>
+
+  <script src="main.js" defer></script>
+</body>
+</html>

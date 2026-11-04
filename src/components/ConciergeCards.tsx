@@ -13,7 +13,7 @@ import { useUseSoon } from "@/lib/use-soon";
 export function ConciergeCard({ card }: { card: Card }) {
   switch (card.type) {
     case "scan":
-      return <ScanCard items={card.items} />;
+      return <ScanCard items={card.items} source={card.source} />;
     case "dishes":
       return <DishesCard ids={card.dishIds} />;
     case "aiDish":
@@ -39,7 +39,7 @@ function CardShell({ title, meta, children }: { title: string; meta?: string; ch
   );
 }
 
-function ScanCard({ items }: { items: { name: string; confidence: "sure" | "check"; useSoon?: boolean; note?: string }[] }) {
+function ScanCard({ items, source }: { items: { name: string; confidence: "sure" | "check"; useSoon?: boolean; note?: string }[]; source?: "photo" | "sweep" | "receipt" }) {
   const { addItems, pantry } = useApp();
   const useSoon = useUseSoon();
   const owned = new Set(pantry.map((p) => p.toLowerCase()));
@@ -53,7 +53,7 @@ function ScanCard({ items }: { items: { name: string; confidence: "sure" | "chec
     });
 
   return (
-    <CardShell title="Found in your photo" meta={`${items.length} items`}>
+    <CardShell title={source === "receipt" ? "Found on your receipt" : source === "sweep" ? "Found in your sweep" : "Found in your photo"} meta={`${items.length} items`}>
       <ul className="ccard__list">
         {items.map((i) => {
           const have = owned.has(i.name.toLowerCase());
@@ -61,7 +61,7 @@ function ScanCard({ items }: { items: { name: string; confidence: "sure" | "chec
             <li key={i.name}>
               <label className="check-row">
                 <input type="checkbox" checked={have || picked.has(i.name)} disabled={have || added} onChange={() => toggle(i.name)} />
-                <span className="row__body">{i.name}</span>
+                <span className="row__body">{i.name}{source === "receipt" && i.note && <span className="xs muted" style={{ display: "block" }}>{i.note}</span>}</span>
                 {i.useSoon && <span className="pill pill--soon" title={i.note}>Use soon</span>}
                 {have ? <span className="xs muted">In pantry</span> : i.confidence === "check" && <span className="pill pill--neutral">Check</span>}
               </label>

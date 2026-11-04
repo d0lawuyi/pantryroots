@@ -10,7 +10,8 @@ import { Section } from "@/components/ui";
 export function FamilyRecipesSection() {
   const { openDish, registerDish, notify } = useApp();
   const { list, remove } = useFamilyRecipes();
-  const [adding, setAdding] = useState(false);
+  // Which way the add sheet opens: scanning a card, or saying/typing it. null = closed.
+  const [adding, setAdding] = useState<null | "scan" | "type">(null);
 
   // Make every saved recipe openable in the dish sheet and cook mode.
   useEffect(() => {
@@ -24,7 +25,7 @@ export function FamilyRecipesSection() {
   };
 
   const addButton = (
-    <button type="button" className="btn btn--tinted fam-add" onClick={() => setAdding(true)}>
+    <button type="button" className="btn btn--tinted fam-add" onClick={() => setAdding("scan")}>
       <Icon name="plus" size={18} />
       Add a recipe
     </button>
@@ -38,12 +39,18 @@ export function FamilyRecipesSection() {
             <QuoteGlyph />
             <p className="fam-empty__title">The recipes you grew up on</p>
             <p className="small muted fam-empty__text">
-              Type or say how your mum, dad or grandma makes it, in their words. We'll turn it into a recipe card you can cook from, and keep their voice in it.
+              Snap grandma's handwritten card, or say how your mum or dad makes it. Muse turns it into a recipe you can cook from and keeps their words in it.
             </p>
-            <button type="button" className="btn btn--primary" onClick={() => setAdding(true)}>
-              <Icon name="plus" size={18} />
-              Add a family recipe
-            </button>
+            <div className="fam-empty__actions">
+              <button type="button" className="btn btn--primary" onClick={() => setAdding("scan")}>
+                <Icon name="camera" size={18} />
+                Scan a recipe card
+              </button>
+              <button type="button" className="btn btn--secondary" onClick={() => setAdding("type")}>
+                <Icon name="mic" size={18} />
+                Say or type it
+              </button>
+            </div>
           </div>
         ) : (
           <ul className="group">
@@ -53,8 +60,12 @@ export function FamilyRecipesSection() {
                   <PlateArt dish={r} size={40} />
                   <span className="row__body">
                     <span className="row__title fam-row__name">{r.name}</span>
-                    <span className="row__meta fam-row__meta">{r.from ? `From ${r.from}` : r.origin || "Family recipe"}</span>
+                    <span className="row__meta fam-row__meta">
+                      {r.from ? `From ${r.from}` : r.origin || "Family recipe"}
+                      {r.sample ? " (sample)" : ""}
+                    </span>
                   </span>
+                  {r.sourceImage && <img className="fam-row__card" src={r.sourceImage} alt="" />}
                   <span className="row__trail"><Icon name="chevron" size={18} /></span>
                 </button>
                 <button type="button" className="icon-btn fam-row__del" aria-label={`Remove ${r.name}`} onClick={() => del(r)}>
@@ -65,7 +76,7 @@ export function FamilyRecipesSection() {
           </ul>
         )}
       </Section>
-      {adding && <FamilyRecipeSheet onClose={() => setAdding(false)} />}
+      {adding && <FamilyRecipeSheet initialMode={adding} onClose={() => setAdding(null)} />}
     </>
   );
 }

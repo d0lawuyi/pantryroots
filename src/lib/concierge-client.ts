@@ -8,13 +8,14 @@ import {
   type Card,
   type ChatTurn,
   type ScanItem,
+  type ScanMode,
   type ConciergeError,
   type ConciergeRequest,
   type ConciergeResponse,
 } from "./concierge-types";
 
 /** Shrink a photo to ≤1600px JPEG so uploads stay small and fast. */
-export async function resizeImage(file: File, max = 1600): Promise<string> {
+export async function resizeImage(file: File, max = 1600, quality = 0.82): Promise<string> {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -28,7 +29,7 @@ export async function resizeImage(file: File, max = 1600): Promise<string> {
     canvas.width = Math.round(img.width * scale);
     canvas.height = Math.round(img.height * scale);
     canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", 0.82);
+    return canvas.toDataURL("image/jpeg", quality);
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -63,6 +64,36 @@ const DEMO_SCAN = [
   { name: "Black-Eyed Beans", confidence: "sure" },
   { name: "Garden Eggs", confidence: "check", useSoon: true, note: "use within the week" },
   { name: "Ginger", confidence: "sure" },
+] satisfies ScanItem[];
+
+/** Sample inventory from a fridge sweep: more items than one photo, duplicates already merged. */
+const DEMO_SWEEP = [
+  { name: "Plantain", confidence: "sure", useSoon: true, note: "very ripe" },
+  { name: "Chicken", confidence: "sure", useSoon: true, note: "raw, opened pack" },
+  { name: "Spinach", confidence: "sure", useSoon: true, note: "fresh greens" },
+  { name: "Tomato", confidence: "sure" },
+  { name: "Onion", confidence: "sure" },
+  { name: "Scotch Bonnet", confidence: "sure" },
+  { name: "Red Bell Pepper", confidence: "sure", useSoon: true, note: "soft spots" },
+  { name: "Palm Oil", confidence: "sure" },
+  { name: "Tomato Paste", confidence: "check" },
+  { name: "Ginger", confidence: "sure" },
+  { name: "Garden Eggs", confidence: "check" },
+  { name: "Eggs", confidence: "sure" },
+] satisfies ScanItem[];
+
+/** Sample receipt lines decoded into grocery names. The note keeps the line as printed. */
+const DEMO_RECEIPT = [
+  { name: "Plantain", confidence: "sure", useSoon: true, note: "from 'PLNTN RIPE 3CT'" },
+  { name: "Palm Oil", confidence: "sure", note: "from 'RED PLM OIL 1L'" },
+  { name: "Egusi", confidence: "sure", note: "from 'EGUSI GRND 8OZ'" },
+  { name: "Crayfish", confidence: "check", note: "from 'CRYFSH DRD 4OZ'" },
+  { name: "Tilapia", confidence: "sure", useSoon: true, note: "from 'TILAPIA WHL FRSH'" },
+  { name: "Scotch Bonnet", confidence: "sure", useSoon: true, note: "from 'SCTCH BNT PPR'" },
+  { name: "Spinach", confidence: "sure", useSoon: true, note: "from 'SPNCH BNCH'" },
+  { name: "Black-Eyed Beans", confidence: "sure", note: "from 'BLK EYE PEAS 2LB'" },
+  { name: "Rice", confidence: "sure", note: "from 'LG GRN RICE 5LB'" },
+  { name: "Smoked Turkey", confidence: "check", note: "from 'SMKD TKY WNG'" },
 ] satisfies ScanItem[];
 
 const DEMO_AI_DISH: Dish = {
@@ -103,14 +134,26 @@ export function localRespond(turns: ChatTurn[], pantry: string[], demo: boolean)
   const note = demo ? "Demo mode: sample answers, no live data." : "AI is offline, so this is a built-in answer.";
   const text = last.text.toLowerCase();
 
-  if (last.image) {
-    if (!demo) return { role: "assistant", text: "Photo scanning needs the AI connection. Try again in a moment, or turn on Demo mode below to see how it works.", note };
-    const items = DEMO_SCAN.map((i) => ({ ...i }));
+  const imageCount = last.images?.length ?? last.imageCount ?? (last.image ? 1 : 0);
+  if (imageCount > 0) {
+    const mode: ScanMode = last.mode ?? (imageCount > 1 ? "sweep" : "photo");
+    if (!demo) {
+      const what = mode === "sweep" ? "Reading a fridge sweep" : mode === "receipt" ? "Reading a receipt" : "Photo scanning";
+      return { role: "assistant", text: `${what} needs the AI connection. Try again in a moment, or turn on Demo mode below to see how it works.`, note };
+    }
+    const sample = mode === "sweep" ? DEMO_SWEEP : mode === "receipt" ? DEMO_RECEIPT : DEMO_SCAN;
+    const items: ScanItem[] = sample.map((i) => ({ ...i }));
     const ranked = rankDishes([...pantry, ...items.map((i) => i.name)]).slice(0, 3);
+    const text =
+      mode === "sweep"
+        ? `I went through ${imageCount} frames from your sweep and counted ${items.length} items, counting anything I saw twice only once. Untick anything I got wrong, then add the rest.`
+        : mode === "receipt"
+          ? `I decoded ${items.length} food lines from your receipt and skipped the bag, tax and total. Check the ones I wasn't sure about.`
+          : "I can see a well-stocked West African shelf. Untick anything I got wrong, then add the rest.";
     return {
       role: "assistant",
-      text: "I can see a well-stocked West African shelf. Untick anything I got wrong, then add the rest.",
-      cards: [{ type: "scan", items }, { type: "dishes", dishIds: ranked.map((m) => m.dish.id) }],
+      text,
+      cards: [{ type: "scan", items, ...(mode === "photo" ? {} : { source: mode }) }, { type: "dishes", dishIds: ranked.map((m) => m.dish.id) }],
       note,
     };
   }

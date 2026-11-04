@@ -12,7 +12,7 @@ import { SayItButton } from "@/components/SayItButton";
 import { DishStory } from "@/components/DishStory";
 import { ShareButton } from "@/components/ShareButton";
 import { isFamilyRecipe } from "@/lib/family";
-import { FamilyQuote } from "@/components/FamilyRecipeSheet";
+import { FamilyQuote, FamilySource } from "@/components/FamilyRecipeSheet";
 import { MacrosPanel } from "@/components/MacrosPanel";
 
 export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) {
@@ -68,6 +68,7 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
       {family ? (
         <>
           {family.quote && <FamilyQuote quote={family.quote} from={family.from} />}
+          <FamilySource recipe={family} />
           <p className="xs muted" style={{ margin: "12px 0 16px" }}>
             {family.aiWritten ? "A family recipe, shaped into steps by AI from your words." : "A family recipe, saved exactly as it was told."}
           </p>

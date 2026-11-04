@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import type { ChatTurn } from "@/lib/concierge-types";
+import type { ChatTurn, PendingAsk, ScanMode } from "@/lib/concierge-types";
 import { askConcierge, localRespond, resizeImage } from "@/lib/concierge-client";
 import { useSpeech } from "@/lib/use-speech";
 import { profileSummary } from "@/lib/profile";
@@ -29,7 +29,7 @@ function getLocation(): Promise<Loc | null> {
   );
 }
 
-export function Concierge({ open, onClose, pending }: { open: boolean; onClose: () => void; pending: { text: string; image?: string; nonce: number } | null }) {
+export function Concierge({ open, onClose, pending }: { open: boolean; onClose: () => void; pending: PendingAsk | null }) {
   const { pantry, registerDish, profile } = useApp();
   const [turns, setTurns] = usePersistentState<ChatTurn[]>("concierge", []);
   const [demo, setDemo] = usePersistentState<boolean>("demo", false);
@@ -49,6 +49,8 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
   const inputRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const handled = useRef(0);
+  // Pictures for the bubbles, this session only. Big data URLs never go into saved history.
+  const [pictures, setPictures] = useState<Record<number, { images: string[]; mode: ScanMode }>>({});
 
   // Re-register AI-written dishes from a restored conversation so their cards still open.
   useEffect(() => {
@@ -71,7 +73,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
   useEffect(() => {
     if (pending && pending.nonce !== handled.current) {
       handled.current = pending.nonce;
-      void send(pending.text, pending.image);
+      void send(pending.text, pending.images, pending.mode);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pending]);
@@ -86,19 +88,27 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  async function send(text: string, image?: string) {
+  async function send(text: string, images?: string[], scanMode?: ScanMode) {
     const clean = text.trim();
-    if ((!clean && !image) || busy) return;
-    const userTurn: ChatTurn = { role: "user", text: clean, image };
-    const history = [...turns, userTurn];
-    setTurns(history);
+    const pics = images?.filter(Boolean) ?? [];
+    if ((!clean && !pics.length) || busy) return;
+    const mode: ScanMode | undefined = pics.length ? (scanMode ?? (pics.length > 1 ? "sweep" : "photo")) : undefined;
+    // What gets saved: the words and what kind of scan it was, never the pictures.
+    const saved: ChatTurn = pics.length
+      ? { role: "user", text: clean || SENT_TEXT[mode!], mode, imageCount: pics.length }
+      : { role: "user", text: clean };
+    const kept = [...turns, saved];
+    // What gets sent: the newest turn also carries its pictures.
+    const history = pics.length ? [...turns, { ...saved, images: pics }] : kept;
+    if (pics.length) setPictures((p) => ({ ...trimPictures(p), [turns.length]: { images: pics, mode: mode! } }));
+    setTurns(kept);
     setDraft("");
 
     const zipInText = clean.match(/\b\d{5}\b/)?.[0];
     if (zipInText) setZip(zipInText);
 
-    setBusyKind(image ? "photo" : NEEDS_LOCATION.test(clean) ? "shop" : "chat");
-    setBusy(image ? "Looking at your photo…" : NEEDS_LOCATION.test(clean) ? "Checking shops near you…" : "Thinking…");
+    setBusyKind(mode ? "photo" : NEEDS_LOCATION.test(clean) ? "shop" : "chat");
+    setBusy(mode ? BUSY_TEXT[mode] : NEEDS_LOCATION.test(clean) ? "Checking shops near you…" : "Thinking…");
 
     let reply: ChatTurn;
     if (demo) {
@@ -111,7 +121,13 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
         setLoc(location);
       }
       const res = await askConcierge({
-        messages: history.map((t, i) => ({ role: t.role, text: t.text, image: i === history.length - 1 ? t.image : undefined })),
+        messages: history.map((t, i) => ({
+          role: t.role,
+          text: t.text,
+          images: i === history.length - 1 ? t.images : undefined,
+          mode: t.mode,
+          imageCount: t.imageCount,
+        })),
         pantry,
         profile: profile.roots.length ? profileSummary(profile) : undefined,
         location: location ?? undefined,
@@ -128,8 +144,8 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
     }
 
     for (const c of reply.cards ?? []) if (c.type === "aiDish") registerDish(c.dish);
-    // Don't keep full photos in storage — keep a marker so the history still reads right.
-    setTurns([...history.map((t) => (t.image ? { ...t, image: undefined, text: t.text || "Sent a photo" } : t)), reply]);
+    // Saved history never held the pictures; older saved turns may still have a single `image`.
+    setTurns([...kept.map((t) => (t.image ? { ...t, image: undefined, text: t.text || "Sent a photo" } : t)), reply]);
     setBusy(null);
   }
 
@@ -137,7 +153,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
     if (!file) return;
     try {
       const data = await resizeImage(file);
-      await send("Scan my pantry", data);
+      await send("Scan my pantry", [data], "photo");
     } catch {
       setTurns((t) => [...t, { role: "assistant", text: "I couldn't read that photo. Try a JPEG or PNG." }]);
     }
@@ -157,7 +173,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
         </div>
         <div className="concierge__actions">
           {turns.length > 0 && (
-            <button type="button" className="btn btn--secondary btn--sm" onClick={() => setTurns([])} disabled={!!busy}>
+            <button type="button" className="btn btn--secondary btn--sm" onClick={() => { setTurns([]); setPictures({}); }} disabled={!!busy}>
               New chat
             </button>
           )}
@@ -197,7 +213,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
         {turns.map((t, i) =>
           t.role === "user" ? (
             <div key={i} className="bubble bubble--user">
-              {t.image && <img src={t.image} alt="Your photo" className="bubble__img" />}
+              <BubblePictures shown={pictures[i]} legacy={t.image} />
               {t.text}
             </div>
           ) : (
@@ -276,6 +292,45 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
         Demo mode (sample answers, works offline)
       </label>
     </aside>
+  );
+}
+
+const BUSY_TEXT: Record<ScanMode, string> = {
+  photo: "Looking at your photo…",
+  sweep: "Reading your fridge sweep…",
+  receipt: "Reading your receipt…",
+};
+
+const SENT_TEXT: Record<ScanMode, string> = {
+  photo: "Sent a photo",
+  sweep: "Sent a fridge sweep",
+  receipt: "Sent a receipt",
+};
+
+/** Keep at most the two newest scans' pictures in memory. */
+function trimPictures<T>(p: Record<number, T>): Record<number, T> {
+  const keys = Object.keys(p).map(Number).sort((a, b) => b - a).slice(0, 1);
+  return Object.fromEntries(keys.map((k) => [k, p[k]]));
+}
+
+/** Photo, receipt, or a filmstrip of sweep frames inside the user's bubble. */
+function BubblePictures({ shown, legacy }: { shown?: { images: string[]; mode: ScanMode }; legacy?: string }) {
+  if (!shown) return legacy ? <img src={legacy} alt="Your photo" className="bubble__img" /> : null;
+  if (shown.mode === "sweep" || shown.images.length > 1) {
+    return (
+      <span className="bubble__strip" role="img" aria-label={`${shown.images.length} frames from your video`}>
+        {shown.images.map((src, k) => (
+          <img key={k} src={src} alt="" className="bubble__frame" />
+        ))}
+      </span>
+    );
+  }
+  return (
+    <img
+      src={shown.images[0]}
+      alt={shown.mode === "receipt" ? "Your receipt" : "Your photo"}
+      className={shown.mode === "receipt" ? "bubble__img bubble__img--receipt" : "bubble__img"}
+    />
   );
 }
 
