@@ -1,5 +1,5 @@
 import type { Card, ConciergeError, ConciergeRequest, ConciergeResponse } from "../src/lib/concierge-types.js";
-import { ENV } from "./_lib/env.js";
+import { ENV, setupStatus } from "./_lib/env.js";
 import { DISH_NAMES, TOOL_DEFS, runTool, type ToolContext } from "./_lib/tools.js";
 
 /**
@@ -90,6 +90,11 @@ function validate(body: unknown): ConciergeRequest | null {
   if (last.image && (typeof last.image !== "string" || !last.image.startsWith("data:image/") || last.image.length > 4_000_000)) return null;
   if (b.zip && !/^\d{5}$/.test(b.zip)) b.zip = undefined;
   return b;
+}
+
+/** GET /api/concierge — setup check. Shows which settings exist, never their values. */
+export async function GET(): Promise<Response> {
+  return new Response(JSON.stringify(setupStatus(), null, 2), { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 }
 
 export async function POST(request: Request): Promise<Response> {
