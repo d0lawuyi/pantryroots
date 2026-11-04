@@ -29,6 +29,9 @@ export const ENV = {
   aiBase,
   /** Swap models (e.g. a Muse or Gemini model) without touching code. */
   model: (read("CONCIERGE_MODEL") || (usingVercelGateway ? "anthropic/claude-opus-5" : "gemini-3.8-flash")).split(/[\s,]/)[0],
+  /** Tried in order when the main model is busy or unavailable. Comma-separated in CONCIERGE_FALLBACK_MODELS. */
+  fallbackModels: (read("CONCIERGE_FALLBACK_MODELS")?.split(",").map((m) => m.trim()).filter(Boolean)) ??
+    (usingVercelGateway ? ["anthropic/claude-sonnet-5", "google/gemini-3.8-flash"] : ["gemini-flash-latest", "gemini-flash-lite-latest"]),
   mapsKey: read("GOOGLE_MAPS_API_KEY"),
   instacartKey: read("INSTACART_API_KEY"),
   instacartHost: read("INSTACART_API_HOST") || "https://connect.dev.instacart.tools",

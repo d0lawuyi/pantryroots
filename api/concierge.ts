@@ -66,20 +66,44 @@ function toGatewayMessages(req: ConciergeRequest): GatewayMessage[] {
   return out;
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** Temporary provider trouble worth retrying or switching models for. */
+const TRANSIENT = new Set([429, 500, 502, 503, 504]);
+
+// Once a model works in this warm instance, keep using it for later steps of the same conversation.
+let workingModel: string | null = null;
+
 async function callGateway(messages: GatewayMessage[]) {
-  const res = await fetch(`${ENV.aiBase}/chat/completions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${ENV.aiKey}` },
-    body: JSON.stringify({ model: ENV.model, messages, tools: TOOL_DEFS, tool_choice: "auto", max_tokens: 1400, temperature: 0.4 }),
-  });
-  if (!res.ok) {
-    const detail = (await res.text()).slice(0, 300);
-    const err = new Error(`gateway ${res.status}: ${detail}`) as Error & { status?: number };
-    err.status = res.status;
-    throw err;
+  const models = [...new Set([workingModel ?? ENV.model, ENV.model, ...ENV.fallbackModels])];
+  let lastErr: (Error & { status?: number }) | null = null;
+
+  for (const model of models) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const res = await fetch(`${ENV.aiBase}/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${ENV.aiKey}` },
+        body: JSON.stringify({ model, messages, tools: TOOL_DEFS, tool_choice: "auto", max_tokens: 1400, temperature: 0.4 }),
+      });
+      if (res.ok) {
+        workingModel = model;
+        const data = await res.json();
+        return data.choices?.[0]?.message as GatewayMessage | undefined;
+      }
+      const detail = (await res.text()).slice(0, 300);
+      lastErr = Object.assign(new Error(`gateway ${res.status}: ${detail}`), { status: res.status });
+      console.warn("[concierge] model", model, "attempt", attempt + 1, "->", res.status);
+      // Auth problems won't fix themselves — stop immediately.
+      if (res.status === 401 || res.status === 403) throw lastErr;
+      // Busy: wait briefly and retry once; unknown model: go straight to the next one.
+      if (TRANSIENT.has(res.status) && attempt === 0) {
+        await sleep(1200);
+        continue;
+      }
+      break;
+    }
+    if (workingModel === model) workingModel = null;
   }
-  const data = await res.json();
-  return data.choices?.[0]?.message as GatewayMessage | undefined;
+  throw lastErr ?? new Error("gateway: no model available");
 }
 
 function validate(body: unknown): ConciergeRequest | null {
