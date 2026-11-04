@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { peopleById } from "@/data/dishes";
-import { substituteFor } from "@/data/substitutes";
+import { SUBSTITUTES, substituteFor } from "@/data/substitutes";
 import { cleanItem, matchDish } from "@/lib/pantry";
 import { useApp } from "@/lib/app-context";
 import { Icon } from "@/components/Icon";
@@ -103,9 +103,15 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
                   <span className="status status--have"><Icon name="check" size={16} strokeWidth={2.25} />Have</span>
                 ) : (
                   <span className="row__trail">
-                    <button type="button" className="btn btn--tinted btn--sm" aria-expanded={open === ing} onClick={() => setOpen(open === ing ? null : ing)}>
-                      Swap
-                    </button>
+                    {ing in SUBSTITUTES ? (
+                      <button type="button" className="btn btn--tinted btn--sm" aria-expanded={open === ing} onClick={() => setOpen(open === ing ? null : ing)}>
+                        Swap
+                      </button>
+                    ) : (
+                      <button type="button" className="btn btn--tinted btn--sm" onClick={() => ask(`I need ${ing} for ${dish.name}. Where can I get it nearby, or delivered?`)}>
+                        Find it
+                      </button>
+                    )}
                     <button type="button" className="icon-btn" aria-label={`Add ${ing} to pantry`} onClick={() => addItems([cleanItem(ing)])}>
                       <Icon name="plus" size={18} />
                     </button>

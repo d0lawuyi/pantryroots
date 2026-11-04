@@ -57,7 +57,15 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
   }, []);
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+    const list = listRef.current;
+    if (!list) return;
+    const last = list.lastElementChild as HTMLElement | null;
+    // While thinking, follow the bottom; when an answer lands, show its start so the first card is in view.
+    if (!busy && last?.classList.contains("reply") && turns.length > 1) {
+      list.scrollTo({ top: Math.max(0, last.offsetTop - list.offsetTop - 12), behavior: "smooth" });
+    } else {
+      list.scrollTo({ top: list.scrollHeight, behavior: "smooth" });
+    }
   }, [turns, busy]);
 
   useEffect(() => {
@@ -70,7 +78,13 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
 
   useEffect(() => {
     if (open && window.matchMedia("(min-width: 720px)").matches) inputRef.current?.focus();
-  }, [open]);
+    if (!open || window.matchMedia("(min-width: 1280px)").matches) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !document.querySelector(".scrim, .cook, .ob")) onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
 
   async function send(text: string, image?: string) {
     const clean = text.trim();

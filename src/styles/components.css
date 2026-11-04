@@ -5,7 +5,8 @@
 }
 
 .main {
-  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--s-6));
+  /* Clear the tab bar and the floating Ask button so neither covers the last rows. */
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 88px);
 }
 
 .sidebar {
@@ -747,7 +748,8 @@ textarea.input {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--s-3));
+  /* Top of the screen, so toasts never sit on a sheet footer or the main buttons. */
+  top: calc(env(safe-area-inset-top) + var(--s-3));
   z-index: 90;
   display: flex;
   align-items: center;
@@ -766,13 +768,13 @@ textarea.input {
 
 @media (min-width: 960px) {
   .toast {
-    bottom: var(--s-6);
+    top: var(--s-5);
     left: calc(50% + var(--sidebar-w) / 2);
   }
 }
 
 @keyframes toast-in {
-  from { opacity: 0; transform: translate(-50%, 8px); }
+  from { opacity: 0; transform: translate(-50%, -8px); }
 }
 
 /* ───────────────── Battles ───────────────── */

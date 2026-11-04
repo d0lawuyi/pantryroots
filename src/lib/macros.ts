@@ -131,7 +131,46 @@ function isEstimate(v: unknown): v is MacroEstimate {
   return !!e && typeof e === "object" && [e.calories, e.protein, e.carbs, e.fat].every((n) => typeof n === "number" && Number.isFinite(n));
 }
 
+const SAMPLE_NOTE = "Sample estimate (Demo mode)";
+
+function demoOn() {
+  try {
+    return localStorage.getItem("pantryroots:v2:demo") === "true";
+  } catch {
+    return false;
+  }
+}
+
+/** Rough, clearly-labeled sample used only in Demo mode when the estimator can't be reached. */
+function sampleEstimate(dish: DishLike): MacroEstimate {
+  const ings = dish.ingredients.join(" ").toLowerCase();
+  const count = (words: string[]) => words.filter((w) => ings.includes(w)).length;
+  const starch = count(["rice", "flour", "yam", "cassava", "cornmeal", "plantain", "banana", "potato", "teff", "maize"]);
+  const protein = count(["chicken", "beef", "fish", "goat", "egg", "beans", "catfish", "tilapia", "stockfish", "peanut", "shiro"]);
+  const fat = count(["palm oil", "oil", "butter", "kibbeh", "peanut", "coconut", "egusi"]);
+  const carbs = 35 + 28 * Math.min(starch, 2);
+  const prot = 10 + 12 * Math.min(protein, 3);
+  const f = 10 + 8 * Math.min(fat, 2);
+  return {
+    servingNote: SAMPLE_NOTE,
+    calories: Math.round((carbs * 4 + prot * 4 + f * 9) / 10) * 10,
+    protein: prot,
+    carbs,
+    fat: f,
+    confidence: "low",
+  };
+}
+
 async function fetchEstimate(dish: DishLike): Promise<MacroEstimate> {
+  try {
+    return await fetchEstimateLive(dish);
+  } catch (e) {
+    if (demoOn()) return sampleEstimate(dish);
+    throw e;
+  }
+}
+
+async function fetchEstimateLive(dish: DishLike): Promise<MacroEstimate> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 30_000);
   try {
@@ -175,7 +214,7 @@ export function useMacroEstimates() {
   const getOrFetch = useCallback(
     async (dish: DishLike): Promise<MacroEstimate> => {
       const cached = get(dish);
-      if (cached) return cached;
+      if (cached && !(cached.servingNote === SAMPLE_NOTE && !demoOn())) return cached;
       const sig = sigOf(dish);
       const k = `${dish.id}|${sig}`;
       let p = inflight.get(k);
@@ -184,6 +223,7 @@ export function useMacroEstimates() {
         inflight.set(k, p);
       }
       const est = await p;
+      if (est.servingNote === SAMPLE_NOTE) return est; // never cache sample numbers
       setCache((prev) => {
         const next = { ...prev, [dish.id]: { sig, est, at: Date.now() } };
         const ids = Object.keys(next);

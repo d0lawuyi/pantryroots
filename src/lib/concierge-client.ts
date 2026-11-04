@@ -1,5 +1,6 @@
 import { SUBSTITUTES, substituteFor } from "../data/substitutes";
 import { KNOWN_INGREDIENTS, cleanItem, rankDishes } from "./pantry";
+import type { Dish } from "../data/dishes";
 import {
   DELIVERY_ETA,
   instacartSearchUrl,
@@ -64,6 +65,25 @@ const DEMO_SCAN = [
   { name: "Ginger", confidence: "sure" },
 ] satisfies ScanItem[];
 
+const DEMO_AI_DISH: Dish = {
+  id: "ai-jamaican-rice-and-peas",
+  name: "Jamaican Rice and Peas",
+  peopleId: "ai",
+  origin: "Jamaica",
+  summary: "Rice simmered with kidney beans, coconut milk, thyme and a whole scotch bonnet. A Sunday-dinner staple.",
+  minutes: 50,
+  tone: "brown",
+  ingredients: ["long grain rice", "kidney beans", "coconut milk", "scotch bonnet", "thyme", "garlic", "spring onion", "allspice"],
+  technique: "Drop the scotch bonnet in whole so it perfumes the pot without bursting.",
+  steps: [
+    "Simmer the kidney beans (or drained canned beans) with garlic, thyme, spring onion and allspice.",
+    "Add coconut milk, water and salt, then the washed rice.",
+    "Lay the whole scotch bonnet on top, cover and cook on low for about 20 minutes until the liquid is absorbed.",
+    "Remove the pepper and thyme stems, fluff and serve.",
+  ],
+  aiWritten: true,
+};
+
 const DEMO_STORES = [
   { name: "Sample: Adesua African Market", address: "Demo address", mapsUrl: mapsSearchUrl("African grocery near me"), openNow: true, closes: "9 PM", distanceMiles: 1.2, driveMinutes: 6 },
   { name: "Sample: Global Foods Mart", address: "Demo address", mapsUrl: mapsSearchUrl("international grocery near me"), openNow: true, closes: "10 PM", distanceMiles: 3.4, driveMinutes: 11 },
@@ -84,7 +104,7 @@ export function localRespond(turns: ChatTurn[], pantry: string[], demo: boolean)
   const text = last.text.toLowerCase();
 
   if (last.image) {
-    if (!demo) return { role: "assistant", text: "Photo scanning needs the AI connection. You can tick items off on the Pantry tab meanwhile.", note };
+    if (!demo) return { role: "assistant", text: "Photo scanning needs the AI connection. Try again in a moment, or turn on Demo mode below to see how it works.", note };
     const items = DEMO_SCAN.map((i) => ({ ...i }));
     const ranked = rankDishes([...pantry, ...items.map((i) => i.name)]).slice(0, 3);
     return {
@@ -95,22 +115,27 @@ export function localRespond(turns: ChatTurn[], pantry: string[], demo: boolean)
     };
   }
 
-  if (/(out of|ran out|run out|running low|low on|need more|don'?t have|no more|missing|need to buy|where.*buy)/.test(text)) {
+  if (/(out of|ran out|run out|running low|low on|need more|i need|don'?t have|no more|missing|need to buy|where.*(buy|get))/.test(text)) {
     const ing = findIngredient(text);
     if (!ing) return { role: "assistant", text: "Which ingredient are you out of?", note };
+    const restock = /(running low|low on|need more|i need|where.*get)/.test(text);
     const s = substituteFor(ing);
+    const hasSwap = ing in SUBSTITUTES;
     const shopQuery = /^(any )?supermarket$/i.test(s.shop) ? "grocery store" : s.shop;
-    const cards: Card[] = [
-      {
+    const cards: Card[] = [];
+    if (hasSwap) {
+      cards.push({
         type: "swap",
         ingredient: ing,
         cheapest: s.swap,
         authentic: s.essential ? `Get the real thing from ${/^[aeiou]/i.test(s.shop) ? "an" : "a"} ${s.shop}.${s.tip ? " " + s.tip : ""}` : `${s.swap}. ${s.tradeoff}`,
-        fastest: `Use the swap tonight and order real ${ing} for next time.`,
+        fastest: `Use the swap tonight and get real ${ing} for next time.`,
         tradeoff: s.tradeoff,
         essential: s.essential,
         source: "pantryroots",
-      },
+      });
+    }
+    cards.push(
       {
         type: "stores",
         ingredient: ing,
@@ -119,13 +144,23 @@ export function localRespond(turns: ChatTurn[], pantry: string[], demo: boolean)
         source: demo ? "demo" : "link",
       },
       { type: "cart", items: [cleanItem(ing)], url: instacartSearchUrl(s.search || ing), source: "link", eta: DELIVERY_ETA },
-    ];
+    );
+    const text2 = !hasSwap
+      ? `${cleanItem(ing)} is an everyday staple, so the best fix is to restock. Here's where to get it.`
+      : restock
+        ? `Here's where to restock ${ing}, plus a stand-in if you run out first.`
+        : s.essential
+          ? `No good swap keeps ${ing} tasting right, so it's worth the trip. Here's a stand-in if you can't wait.`
+          : `Easy one. Here's a swap from your kitchen, plus where to get the real thing.`;
+    return { role: "assistant", text: text2, cards, note };
+  }
+
+  if (/(caribbean|jamaican|trinidad|haitian|other tradition|something different)/.test(text)) {
+    if (!demo) return { role: "assistant", text: "Writing dishes from other traditions needs the AI connection. Try again in a moment, or turn on Demo mode below to see a sample.", note };
     return {
       role: "assistant",
-      text: s.essential
-        ? `No good swap keeps ${ing} tasting right, so it's worth the trip. Here's a stand-in if you can't wait.`
-        : `Easy one. Here's a swap from your kitchen, plus where to get the real thing.`,
-      cards,
+      text: "Here's a Jamaican Sunday staple that uses your rice and pepper.",
+      cards: [{ type: "aiDish", dish: DEMO_AI_DISH }],
       note,
     };
   }

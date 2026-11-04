@@ -98,7 +98,7 @@ function useWakeLock() {
 export function CookMode({ dish, onClose }: { dish: Dish; onClose: () => void }) {
   const { pantry, notify } = useApp();
   // -1 = get ready (ingredients), 0..n-1 = steps, n = finished
-  const [index, setIndex] = useState(-1);
+  const [index, setIndex] = useState(dish.ingredients.length ? -1 : 0);
   const [timers, setTimers] = useState<Timer[]>([]);
   const [, setTick] = useState(0);
   const awake = useWakeLock();
@@ -107,12 +107,13 @@ export function CookMode({ dish, onClose }: { dish: Dish; onClose: () => void })
   const match = matchDish(dish, pantry);
 
   const next = useCallback(() => setIndex((i) => Math.min(n, i + 1)), [n]);
-  const prev = useCallback(() => setIndex((i) => Math.max(-1, i - 1)), []);
+  const first = dish.ingredients.length ? -1 : 0;
+  const prev = useCallback(() => setIndex((i) => Math.max(first, i - 1)), [first]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
-      else if (e.key === "ArrowRight" || e.key === " ") {
+      else if (e.key === "ArrowRight" || (e.key === " " && !(e.target instanceof HTMLElement && e.target.closest("button, a, input, textarea")))) {
         e.preventDefault();
         next();
       } else if (e.key === "ArrowLeft") prev();
@@ -267,7 +268,7 @@ export function CookMode({ dish, onClose }: { dish: Dish; onClose: () => void })
       </main>
 
       <footer className="cook__foot">
-        <button type="button" className="btn btn--secondary cook__nav" onClick={prev} disabled={index < 0}>
+        <button type="button" className="btn btn--secondary cook__nav" onClick={prev} disabled={index < (dish.ingredients.length ? 0 : 1)}>
           <Icon name="back" size={20} />
           Back
         </button>

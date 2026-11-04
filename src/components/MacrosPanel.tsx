@@ -114,7 +114,7 @@ export function MacrosPanel({ dish, onSetTargets }: { dish: Dish; onSetTargets?:
       {status.state === "error" && (
         <div className="macros__card macros__error" role="status">
           <p className="macros__error-title">Couldn't estimate right now</p>
-          <p className="small muted">{status.message} You can still look the dish up in MyFitnessPal's food search.</p>
+          <p className="small muted">{status.message === "Couldn't estimate right now." ? "" : status.message + " "}You can still look the dish up in MyFitnessPal's food search, or turn on Demo mode in the concierge for sample numbers.</p>
           <div className="macros__actions">
             <button type="button" className="btn btn--secondary btn--sm" onClick={() => load()}>
               Retry

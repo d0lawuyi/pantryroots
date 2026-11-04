@@ -64,6 +64,17 @@ export function fromReply(reply: RecipeReply, original: string, from?: string): 
 }
 
 /** Fallback when the AI is unavailable: keep the words exactly as written, as a single step. */
+/** Split free text into steps: by line breaks, else by sentences grouped ~2 at a time. */
+function splitSteps(text: string): string[] {
+  const lines = text.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length > 1) return lines.slice(0, 20);
+  const sentences = text.trim().match(/[^.!?]+[.!?]+|[^.!?]+$/g)?.map((x) => x.trim()).filter(Boolean) ?? [text.trim()];
+  if (sentences.length <= 2) return [text.trim()];
+  const steps: string[] = [];
+  for (let i = 0; i < sentences.length; i += 2) steps.push(sentences.slice(i, i + 2).join(" "));
+  return steps.slice(0, 20);
+}
+
 export function asWritten(text: string, name?: string, from?: string): FamilyRecipe {
   const who = from?.trim();
   const title = name?.trim() || (who ? `${who}'s recipe` : "Family recipe");
@@ -77,7 +88,7 @@ export function asWritten(text: string, name?: string, from?: string): FamilyRec
     tone: "brown" as Tone,
     ingredients: [],
     technique: "Written in the cook's own words. Follow it the way they would.",
-    steps: [text.trim()],
+    steps: splitSteps(text),
     from: who || undefined,
     createdAt: Date.now(),
     original: text,
