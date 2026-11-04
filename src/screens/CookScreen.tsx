@@ -11,6 +11,7 @@ import { PlateArt } from "@/components/PlateArt";
 import { ShoppingListButton } from "@/components/ShoppingSheet";
 import { rankWithProfile } from "@/lib/profile";
 import { TonightPlanned } from "@/components/TonightPlanned";
+import { ScanKitchen } from "@/components/ScanKitchen";
 import { TodayMacros } from "@/components/TodayMacros";
 import { FamilyRecipesSection } from "@/components/FamilyRecipesSection";
 
@@ -42,6 +43,7 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
     <div className="page">
       <PageHeader title="Cook" lede={lede} action={<ShoppingListButton className="shop-trigger--mobile-only" onClick={openShopping} />} />
 
+      <ScanKitchen />
       <TonightPlanned onOpenPlan={openPlan} />
       {hero && <TonightHero match={hero} />}
       <TodayMacros />

@@ -5,6 +5,7 @@ import { AISLES, AISLE_META, aisleOf, usePantryLow, type Aisle, type AisleIcon }
 import { useApp } from "@/lib/app-context";
 import { Icon } from "@/components/Icon";
 import { PageHeader, Section } from "@/components/ui";
+import { ScanKitchen } from "@/components/ScanKitchen";
 
 type Product = { name: string; brand: string; image?: string };
 type Lookup = { state: "idle" } | { state: "loading" } | { state: "found"; product: Product } | { state: "missing" } | { state: "error" };
@@ -77,7 +78,7 @@ const LowGlyph = () => (
 type Removed = { name: string; key: string };
 
 export function PantryScreen() {
-  const { pantry, addItems, removeItem } = useApp();
+  const { pantry, addItems, removeItem, ask } = useApp();
   const { low, isLow, setLow, toggleLow } = usePantryLow();
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("");
@@ -322,6 +323,15 @@ export function PantryScreen() {
                               {item.name}
                               {item.low && <span className="pill pill--need pantry-item__pill">Running low</span>}
                             </span>
+                            {item.low && (
+                              <button
+                                type="button"
+                                className="btn btn--tinted btn--sm"
+                                onClick={() => ask(`I'm running low on ${item.name.toLowerCase()}. Where can I get more nearby, or delivered?`)}
+                              >
+                                Find more
+                              </button>
+                            )}
                             <button
                               type="button"
                               className="icon-btn pantry-item__low"
@@ -356,8 +366,9 @@ export function PantryScreen() {
         )}
       </Section>
 
-      <Section title="From a photo" note="Want it done for you? Tap Ask, then Scan my shelf, and the concierge will read the photo. Or use this one as a checklist and tap what you see.">
-        <div className="group" style={{ padding: 16 }}>
+      <Section title="From a photo" note="The AI reads your photo and lists what it sees. You confirm before anything is added.">
+        <div className="group stack" style={{ padding: 16 }}>
+          <ScanKitchen variant="button" />
           {photo ? (
             <div className="stack">
               <div className="photo"><img src={photo} alt="Your pantry" /></div>
@@ -372,8 +383,8 @@ export function PantryScreen() {
             </div>
           ) : (
             <label className="btn btn--secondary btn--block" style={{ cursor: "pointer" }}>
-              <Icon name="camera" size={18} />
-              Take or choose a photo
+              <Icon name="pantry" size={18} />
+              Or tick items by hand from a photo
               <input
                 type="file"
                 accept="image/*"

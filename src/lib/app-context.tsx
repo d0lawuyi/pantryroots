@@ -18,7 +18,7 @@ export type AppApi = {
   /** Full-screen, step-by-step cooking view. */
   startCooking: (id: string) => void;
   /** Open the concierge, optionally sending a message straight away. */
-  ask: (prompt?: string) => void;
+  ask: (prompt?: string, image?: string) => void;
   /** Make an AI-written dish openable in the dish sheet. */
   registerDish: (dish: Dish) => void;
   getDish: (id: string) => Dish | undefined;

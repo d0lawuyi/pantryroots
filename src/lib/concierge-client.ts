@@ -73,7 +73,7 @@ function findIngredient(text: string): string | null {
   const known = [...Object.keys(SUBSTITUTES), ...KNOWN_INGREDIENTS].sort((a, b) => b.length - a.length);
   const hit = known.find((k) => t.includes(k));
   if (hit) return hit;
-  const m = t.match(/out of ([a-z \-]+?)(?: for| and|[.?!,]|$)/);
+  const m = t.match(/(?:out of|low on|more) ([a-z \-]+?)(?: for| and|[.?!,]|$)/);
   return m ? m[1].trim() : null;
 }
 
@@ -94,7 +94,7 @@ export function localRespond(turns: ChatTurn[], pantry: string[], demo: boolean)
     };
   }
 
-  if (/(out of|ran out|run out|don'?t have|no more|missing|need to buy|where.*buy)/.test(text)) {
+  if (/(out of|ran out|run out|running low|low on|need more|don'?t have|no more|missing|need to buy|where.*buy)/.test(text)) {
     const ing = findIngredient(text);
     if (!ing) return { role: "assistant", text: "Which ingredient are you out of?", note };
     const s = substituteFor(ing);

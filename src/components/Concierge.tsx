@@ -14,7 +14,7 @@ const ACTIONS = [
   { icon: "swap", title: "I'm out of palm oil", sub: "Swap, nearest shop, delivery", kind: "ask" },
   { icon: "explore", title: "Something Caribbean with what I have", sub: "AI-written, from other traditions", kind: "ask" },
 ] as const;
-const NEEDS_LOCATION = /(out of|ran out|run out|don'?t have|buy|store|shop|near|order|deliver)/i;
+const NEEDS_LOCATION = /(out of|ran out|run out|running low|low on|need more|don'?t have|buy|store|shop|near|order|deliver)/i;
 
 type Loc = { lat: number; lng: number };
 
@@ -29,7 +29,7 @@ function getLocation(): Promise<Loc | null> {
   );
 }
 
-export function Concierge({ open, onClose, pending }: { open: boolean; onClose: () => void; pending: { text: string; nonce: number } | null }) {
+export function Concierge({ open, onClose, pending }: { open: boolean; onClose: () => void; pending: { text: string; image?: string; nonce: number } | null }) {
   const { pantry, registerDish, profile } = useApp();
   const [turns, setTurns] = usePersistentState<ChatTurn[]>("concierge", []);
   const [demo, setDemo] = usePersistentState<boolean>("demo", false);
@@ -63,7 +63,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
   useEffect(() => {
     if (pending && pending.nonce !== handled.current) {
       handled.current = pending.nonce;
-      void send(pending.text);
+      void send(pending.text, pending.image);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pending]);

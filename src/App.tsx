@@ -47,7 +47,7 @@ export default function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [conciergeOpen, setConciergeOpen] = useState(false);
   const [cookingId, setCookingId] = useState<string | null>(null);
-  const [pendingAsk, setPendingAsk] = useState<{ text: string; nonce: number } | null>(null);
+  const [pendingAsk, setPendingAsk] = useState<{ text: string; image?: string; nonce: number } | null>(null);
   const [aiDishes, setAiDishes] = useState<Record<string, Dish>>({});
 
   useEffect(() => {
@@ -82,11 +82,11 @@ export default function App() {
       openDish: (id) => { setSwap(null); setDishId(id); },
       openSwap: (ingredient) => { setDishId(null); setSwap({ ingredient }); },
       startCooking: (id) => { setDishId(null); setSwap(null); setCookingId(id); },
-      ask: (prompt) => {
+      ask: (prompt, image) => {
         setDishId(null);
         setSwap(null);
         setConciergeOpen(true);
-        if (prompt) setPendingAsk({ text: prompt, nonce: Date.now() });
+        if (prompt || image) setPendingAsk({ text: prompt ?? "", image, nonce: Date.now() });
       },
       registerDish: (dish) => setAiDishes((m) => (m[dish.id] ? m : { ...m, [dish.id]: dish })),
       getDish: (id) => dishById[id] ?? aiDishes[id],
