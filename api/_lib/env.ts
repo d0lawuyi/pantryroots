@@ -8,16 +8,24 @@ function read(name: string): string | undefined {
   return v ? v : undefined;
 }
 
-const aiBase = (read("AI_GATEWAY_BASE_URL") || "https://ai-gateway.vercel.sh/v1").replace(/\/+$/, "");
+const GOOGLE_OPENAI_BASE = "https://generativelanguage.googleapis.com/v1beta/openai";
+const VERCEL_GATEWAY_BASE = "https://ai-gateway.vercel.sh/v1";
+const isUrl = (v?: string) => !!v && /^https:\/\/[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(v);
+const looksLikeGoogleKey = (v?: string) => !!v && /^(AIza|AQ\.)/.test(v);
+
+const baseSetting = read("AI_GATEWAY_BASE_URL");
+const geminiKey = read("GEMINI_API_KEY");
+let aiKey = read("AI_GATEWAY_API_KEY") || read("CONCIERGE_API_KEY") || geminiKey;
+// Forgiving setup: a key pasted into the base-URL box still works.
+if (!aiKey && !isUrl(baseSetting) && baseSetting && /^[A-Za-z0-9._-]{20,}$/.test(baseSetting)) aiKey = baseSetting;
+
+// Where to send requests: a valid base URL wins; otherwise Google keys go to Google, everything else to Vercel.
+const aiBase = (isUrl(baseSetting) ? baseSetting! : geminiKey || looksLikeGoogleKey(aiKey) ? GOOGLE_OPENAI_BASE : VERCEL_GATEWAY_BASE).replace(/\/+$/, "");
 const usingVercelGateway = aiBase.includes("ai-gateway.vercel.sh");
+if (!aiKey && usingVercelGateway) aiKey = read("VERCEL_OIDC_TOKEN");
 
 export const ENV = {
-  aiKey:
-    read("AI_GATEWAY_API_KEY") ||
-    read("CONCIERGE_API_KEY") ||
-    read("GEMINI_API_KEY") ||
-    // Vercel's built-in OIDC token only works with Vercel's own gateway.
-    (usingVercelGateway ? read("VERCEL_OIDC_TOKEN") : undefined),
+  aiKey,
   aiBase,
   /** Swap models (e.g. a Muse or Gemini model) without touching code. */
   model: (read("CONCIERGE_MODEL") || (usingVercelGateway ? "anthropic/claude-opus-5" : "gemini-2.5-flash")).split(/[\s,]/)[0],
