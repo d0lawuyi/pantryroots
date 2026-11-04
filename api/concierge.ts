@@ -133,10 +133,15 @@ export async function POST(request: Request): Promise<Response> {
     return json({ text: "Here's what I found.", cards });
   } catch (e) {
     const status = (e as { status?: number }).status;
+    // The gateway's own reason (e.g. "insufficient credits", "invalid API key", "model not found").
+    const detail = String((e as Error).message ?? "").replace(/^gateway \d+: /, "").slice(0, 240);
+    console.error("[concierge]", status, detail);
     if (status === 401 || status === 402 || status === 403 || status === 429) {
-      return json({ error: "ai_unavailable", message: "The AI service is unavailable right now (key or credits)." }, 503);
+      return json({ error: "ai_unavailable", message: `AI Gateway refused the request (HTTP ${status}, model ${ENV.model}): ${detail}` }, 503);
     }
-    console.error("[concierge]", e);
+    if (status) {
+      return json({ error: "server_error", message: `AI Gateway error (HTTP ${status}, model ${ENV.model}): ${detail}` }, 502);
+    }
     return json({ error: "server_error", message: "Something went wrong on our side." }, 500);
   }
 }
