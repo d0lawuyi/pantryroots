@@ -1,0 +1,295 @@
+/* ───────────────── Family recipe keeper ───────────────── */
+
+/* Section: add button sits in the section head; keep a full touch target */
+.fam-add {
+  align-self: center;
+  height: 44px;
+  padding: 0 var(--s-3);
+  font-size: var(--fs-sm);
+}
+
+/* Empty state: one inviting card */
+.fam-empty {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-2);
+  padding: var(--s-5) var(--s-4) var(--s-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+
+.fam-empty__glyph {
+  color: var(--gold-ink);
+}
+
+.fam-empty__title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.fam-empty__text {
+  max-width: 46ch;
+  line-height: 1.5;
+  margin-bottom: var(--s-2);
+}
+
+/* Rows: open area + remove button, side by side */
+.fam-row {
+  padding: 0;
+  gap: 0;
+  --row-inset: 68px;
+}
+
+.fam-row__open {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex: 1;
+  min-width: 0;
+  min-height: 60px;
+  padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+  text-align: left;
+}
+
+.fam-row__open:hover {
+  background: var(--surface-sunken);
+}
+
+.fam-row__name,
+.fam-row__meta {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fam-row__del {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-right: var(--s-2);
+  color: var(--ink-3);
+}
+
+.fam-row__del:hover {
+  color: var(--pepper);
+}
+
+.fam-row__open:focus-visible,
+.fam-row__del:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: -2px;
+}
+
+/* ── Sheet: write step ── */
+.fam-write {
+  display: grid;
+  gap: var(--s-4);
+}
+
+.fam-intro {
+  font-size: var(--fs-lg);
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.fam-failure {
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+}
+
+.fam-fields {
+  display: grid;
+  gap: var(--s-3);
+}
+
+@media (min-width: 520px) {
+  .fam-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.fam-optional {
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.fam-text__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-2);
+}
+
+.fam-mic {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 var(--s-4);
+  border-radius: var(--r-pill);
+  background: var(--indigo-tint);
+  color: var(--indigo-text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition: background-color 0.15s var(--ease);
+}
+
+.fam-mic--on {
+  background: var(--pepper-tint);
+  color: var(--pepper);
+}
+
+.fam-textarea {
+  min-height: 220px;
+  font-size: var(--fs-md);
+}
+
+.fam-textarea[readonly] {
+  border-color: var(--pepper);
+  box-shadow: 0 0 0 3px var(--pepper-tint);
+}
+
+.fam-hint {
+  margin-top: 6px;
+}
+
+/* ── Sheet: loading skeleton ── */
+.fam-loading {
+  display: grid;
+  gap: var(--s-5);
+  padding-top: var(--s-2);
+}
+
+.fam-skel-head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+.fam-skel-lines {
+  display: grid;
+  flex: 1;
+  gap: var(--s-2);
+}
+
+.fam-skel {
+  display: block;
+  height: 12px;
+  border-radius: var(--r-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  animation: fam-shimmer 1.4s ease-in-out infinite;
+}
+
+.fam-skel--plate {
+  flex: none;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+}
+
+.fam-skel--quote {
+  height: 64px;
+  border-radius: var(--r-lg);
+  border-left: 3px solid var(--gold);
+}
+
+.fam-loading__note {
+  text-align: center;
+}
+
+@keyframes fam-shimmer {
+  50% { opacity: 0.45; }
+}
+
+/* ── Sheet: preview ── */
+.fam-preview__head {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+.fam-preview__name {
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 4px;
+}
+
+.fam-preview__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: var(--s-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.fam-preview__summary {
+  margin-top: var(--s-4);
+  line-height: 1.6;
+}
+
+.fam-preview__label {
+  margin: var(--s-6) 0 var(--s-3);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.fam-token {
+  background: var(--surface-sunken);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+}
+
+.fam-preview__note {
+  margin-top: var(--s-6);
+}
+
+/* The cook's own words — used in the preview and the dish sheet */
+.fam-quote {
+  margin: var(--s-5) 0 0;
+  padding: var(--s-3) var(--s-4) var(--s-3) var(--s-5);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  background: var(--gold-tint);
+}
+
+.fam-quote blockquote {
+  margin: 0;
+}
+
+.fam-quote blockquote p {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.fam-quote blockquote p::before {
+  content: "\201C";
+}
+
+.fam-quote blockquote p::after {
+  content: "\201D";
+}
+
+.fam-quote figcaption {
+  margin-top: 6px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--gold-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fam-skel {
+    animation: none;
+  }
+}

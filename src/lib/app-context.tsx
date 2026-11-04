@@ -9,6 +9,8 @@ export type AppApi = {
   /** Food roots and preferences from onboarding. */
   profile: Profile;
   openShopping: () => void;
+  /** Open the week plan sheet. */
+  openPlan: () => void;
   addItems: (items: string[]) => void;
   removeItem: (item: string) => void;
   openDish: (id: string) => void;

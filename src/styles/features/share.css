@@ -1,0 +1,63 @@
+/* Share cards — ShareButton (src/components/ShareButton.tsx) and its preview sheet.
+   The card image itself is drawn in src/lib/share-card.ts. */
+
+.share-btn {
+  min-height: 44px;
+}
+
+.share-btn.btn--sm {
+  /* Keep a 44px touch target even when it looks small. */
+  position: relative;
+}
+
+.share-btn.btn--sm::before {
+  content: "";
+  position: absolute;
+  inset: -5px 0;
+}
+
+.share-btn[aria-busy="true"] {
+  cursor: progress;
+  color: var(--ink-2);
+}
+
+.share-btn svg {
+  flex: none;
+}
+
+.share-preview {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: var(--s-3);
+}
+
+.share-preview__img {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-float);
+  background: #1f2f72; /* card colour while the image decodes */
+}
+
+.share-preview__note {
+  font-size: var(--fs-xs);
+  color: var(--ink-3);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .share-preview__img {
+    animation: share-in 0.24s var(--ease);
+  }
+}
+
+@keyframes share-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}

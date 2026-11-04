@@ -1,0 +1,528 @@
+/*
+ * Diet & macros — estimate card in the dish sheet, today's rings on Cook, targets sheet.
+ * Colour per macro: calories indigo, protein leaf, carbs gold, fat pepper.
+ * The colours only tell the four apart; every value is also written out in text.
+ */
+
+[data-macro="calories"] { --macro: var(--indigo); }
+[data-macro="protein"] { --macro: var(--leaf); }
+[data-macro="carbs"] { --macro: var(--gold); }
+[data-macro="fat"] { --macro: var(--pepper); }
+
+@media (prefers-color-scheme: dark) {
+  /* Dark indigo is a button colour; lift it so the ring reads on a dark surface. */
+  [data-macro="calories"] { --macro: var(--indigo-text); }
+}
+
+.visually-hidden-macros {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ───────────────── Dish sheet panel ───────────────── */
+
+.macros {
+  margin-top: var(--s-6);
+}
+
+.macros__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+
+.macros__title {
+  font-size: var(--fs-lg);
+}
+
+.macros__badge {
+  flex: none;
+  padding: 2px var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--indigo-tint);
+  color: var(--indigo-text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.macros__card {
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.macros__skeleton {
+  display: grid;
+  gap: 12px;
+}
+
+.macros__kcal {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.macros__kcal-num {
+  font-size: var(--fs-3xl);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.macros__kcal-unit {
+  font-size: var(--fs-md);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.macros__serving {
+  margin-top: 2px;
+}
+
+.macros__bars {
+  display: grid;
+  gap: 10px;
+  margin-top: var(--s-4);
+}
+
+.macros__bar {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: var(--fs-sm);
+}
+
+.macros__bar-label {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.macros__bar-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.macros__bar-fill {
+  display: block;
+  height: 100%;
+  min-width: 2px;
+  border-radius: inherit;
+  background: var(--macro);
+  transition: width 0.4s var(--ease);
+}
+
+.macros__bar-val {
+  min-width: 72px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.macros__bar-pct {
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.macros__caption {
+  margin-top: var(--s-3);
+}
+
+.macros__fit {
+  margin-top: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--surface-sunken);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.macros__set {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: var(--s-1);
+}
+
+.macros__log {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+}
+
+.macros__log-label {
+  font-weight: 600;
+}
+
+.macros__stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+}
+
+.macros .icon-btn,
+.today .icon-btn {
+  width: 44px;
+  height: 44px;
+}
+
+.macros__stepper .icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.macros__stepper-val {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.macros__log-kcal {
+  margin-left: auto;
+}
+
+.macros__btns {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: var(--s-3);
+}
+
+@media (min-width: 520px) {
+  .macros__btns {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+}
+
+.macros__mfp-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-top: var(--s-1);
+}
+
+.macros__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  margin-top: var(--s-3);
+}
+
+.macros__actions .btn--sm {
+  height: 44px;
+}
+
+.macros__error-title {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.macros__manual {
+  display: grid;
+  gap: 6px;
+  margin-top: var(--s-3);
+}
+
+/* ───────────────── Today card (Cook screen) ───────────────── */
+
+.today {
+  margin-bottom: var(--s-8);
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.today--empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3) var(--s-4);
+}
+
+.today__intro {
+  flex: 1 1 260px;
+}
+
+.today__cta {
+  height: 44px;
+}
+
+.today__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+
+.today__head .link {
+  min-height: 44px;
+}
+
+.today__title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.today--empty .today__title {
+  margin-bottom: 2px;
+}
+
+.today__rings {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+
+.today-ring {
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 2px;
+  text-align: center;
+  min-width: 0;
+}
+
+.today-ring svg {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.today-ring__track,
+.today-ring__fill {
+  fill: none;
+  stroke-width: 6;
+}
+
+.today-ring__track {
+  stroke: var(--surface-sunken);
+}
+
+@media (prefers-color-scheme: dark) {
+  .today-ring__track { stroke: var(--line); }
+}
+
+.today-ring__fill {
+  stroke: var(--macro);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s var(--ease);
+}
+
+.today-ring__pct {
+  fill: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.today-ring__label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.today-ring__val {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.today-ring__of {
+  display: block;
+  font-weight: 400;
+  color: var(--ink-3);
+  font-size: var(--fs-xs);
+}
+
+.today__left {
+  margin-top: var(--s-3);
+  font-weight: 600;
+}
+
+.today__list {
+  margin-top: var(--s-3);
+  border-top: 1px solid var(--line);
+}
+
+.today__item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: 52px;
+  border-bottom: 1px solid var(--line);
+}
+
+.today__item-body {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.today__item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.today__item-kcal {
+  color: var(--ink-2);
+}
+
+.today__item .icon-btn {
+  margin-right: calc(-1 * var(--s-2));
+}
+
+.today__none {
+  margin-top: var(--s-3);
+}
+
+.today__foot {
+  margin-top: var(--s-3);
+}
+
+.today__mfp {
+  font-size: inherit;
+}
+
+/* ───────────────── Targets sheet ───────────────── */
+
+.macro-sheet__lede {
+  margin-bottom: var(--s-4);
+}
+
+.macro-sheet__where {
+  margin-bottom: var(--s-5);
+}
+
+.macro-sheet__h {
+  margin-bottom: var(--s-2);
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+
+.macro-sheet__note {
+  margin: var(--s-2) 0 var(--s-5);
+}
+
+.macro-presets {
+  display: grid;
+  gap: var(--s-2);
+}
+
+@media (min-width: 560px) {
+  .macro-presets {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.macro-preset {
+  display: grid;
+  gap: 2px;
+  min-height: 56px;
+  padding: var(--s-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  text-align: left;
+}
+
+.macro-preset:hover {
+  background: var(--surface-sunken);
+}
+
+.macro-preset[aria-pressed="true"] {
+  border-color: var(--indigo);
+  background: var(--indigo-tint);
+  box-shadow: inset 0 0 0 1px var(--indigo);
+}
+
+.macro-preset__title {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.macro-preset[aria-pressed="true"] .macro-preset__title {
+  color: var(--indigo-text);
+}
+
+.macro-preset__note {
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+}
+
+.macro-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s-3);
+}
+
+.macro-field .label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.macro-field .label::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--macro);
+}
+
+.macro-field__wrap {
+  position: relative;
+}
+
+.macro-field__wrap .input {
+  padding-right: 44px;
+}
+
+.macro-field__unit {
+  position: absolute;
+  top: 50%;
+  right: var(--s-3);
+  transform: translateY(-50%);
+  font-size: var(--fs-sm);
+  color: var(--ink-3);
+  pointer-events: none;
+}
+
+.macro-field .input[aria-invalid="true"] {
+  border-color: var(--pepper);
+}
+
+.macro-field__err {
+  margin-top: 4px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--pepper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .macros__bar-fill,
+  .today-ring__fill {
+    transition: none;
+  }
+}

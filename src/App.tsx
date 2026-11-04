@@ -16,6 +16,7 @@ import { CookMode } from "@/components/CookMode";
 import { Onboarding } from "@/components/Onboarding";
 import { ShoppingSheet, ShoppingListButton } from "@/components/ShoppingSheet";
 import { useProfile } from "@/lib/profile";
+import { WeekPlanSheet, CalendarIcon } from "@/components/WeekPlanSheet";
 import { dishById, type Dish } from "@/data/dishes";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
@@ -38,6 +39,7 @@ export default function App() {
   const [pantry, setPantry] = usePersistentState<string[]>("pantry", STARTER_PANTRY);
   const [profile, setProfile] = useProfile();
   const [shoppingOpen, setShoppingOpen] = useState(false);
+  const [planOpen, setPlanOpen] = useState(false);
   const [ratings, setRatings] = usePersistentState<Ratings>("ratings", {});
   const [votes, setVotes] = usePersistentState<VoteCounts>("votes", {});
   const [dishId, setDishId] = useState<string | null>(null);
@@ -90,6 +92,7 @@ export default function App() {
       getDish: (id) => dishById[id] ?? aiDishes[id],
       profile,
       openShopping: () => { setDishId(null); setSwap(null); setShoppingOpen(true); },
+      openPlan: () => { setDishId(null); setSwap(null); setPlanOpen(true); },
       notify,
       go,
     }),
@@ -114,6 +117,10 @@ export default function App() {
               </a>
             ))}
           </nav>
+          <button type="button" className="sidebar__item" onClick={() => setPlanOpen(true)}>
+            <CalendarIcon />
+            Week plan
+          </button>
           <ShoppingListButton variant="sidebar" onClick={() => setShoppingOpen(true)} />
           <div className="sidebar__foot">
             <strong className="num">{readyCount}</strong>
@@ -150,6 +157,7 @@ export default function App() {
 
       {dishId && <DishSheet id={dishId} onClose={() => setDishId(null)} />}
       {shoppingOpen && <ShoppingSheet onClose={() => setShoppingOpen(false)} />}
+      {planOpen && <WeekPlanSheet onClose={() => setPlanOpen(false)} />}
       {swap && <SwapSheet initial={swap.ingredient} onClose={() => setSwap(null)} />}
       {cookingId && api.getDish(cookingId) && <CookMode dish={api.getDish(cookingId)!} onClose={() => setCookingId(null)} />}
       {toast && <Toast message={toast} onDone={clearToast} />}

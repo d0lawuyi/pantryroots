@@ -1,6 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
-    "api/concierge.ts": { "maxDuration": 60 }
+    "api/concierge.ts": { "maxDuration": 60 },
+    "api/recipe.ts": { "maxDuration": 40 },
+    "api/macros.ts": { "maxDuration": 40 }
   }
 }

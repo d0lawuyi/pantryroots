@@ -748,7 +748,7 @@ textarea.input {
   position: fixed;
   left: 50%;
   bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--s-3));
-  z-index: 60;
+  z-index: 90;
   display: flex;
   align-items: center;
   gap: var(--s-2);
@@ -1715,4 +1715,12 @@ textarea.input {
   background: var(--surface);
   font-size: 12px;
   color: var(--pepper);
+}
+
+.dish-head__actions {
+  margin-left: auto;
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
 }

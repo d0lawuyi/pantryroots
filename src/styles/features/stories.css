@@ -1,0 +1,187 @@
+/* ───────────── Say it right + dish stories ───────────── */
+
+.say-it {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  vertical-align: middle;
+}
+
+/* 44px hit area around a smaller visible circle */
+.say-it__btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin: -6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--indigo-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.say-it__btn::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: var(--r-pill);
+  background: var(--indigo-tint);
+  transition: background-color 0.15s var(--ease), transform 0.15s var(--ease);
+}
+
+.say-it--md .say-it__btn {
+  width: 48px;
+  height: 48px;
+  margin: -4px;
+}
+
+.say-it--md .say-it__btn::before {
+  inset: 4px;
+}
+
+.say-it__icon {
+  position: relative;
+}
+
+.say-it--md .say-it__icon {
+  width: 22px;
+  height: 22px;
+}
+
+.say-it__btn:hover::before {
+  background: color-mix(in srgb, var(--indigo-tint) 75%, var(--indigo) 25%);
+}
+
+.say-it__btn:active::before {
+  transform: scale(0.94);
+}
+
+.say-it__btn:focus-visible {
+  outline: none;
+}
+
+.say-it__btn:focus-visible::before {
+  outline: 2px solid var(--indigo);
+  outline-offset: 2px;
+}
+
+.say-it.is-speaking .say-it__btn {
+  color: var(--ink-inverse);
+}
+
+.say-it.is-speaking .say-it__btn::before {
+  background: var(--indigo);
+}
+
+.say-it.is-speaking .say-it__wave {
+  animation: say-it-wave 0.9s var(--ease) infinite;
+}
+
+.say-it.is-speaking .say-it__wave--2 {
+  animation-delay: 0.15s;
+}
+
+@keyframes say-it-wave {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.say-it__caption {
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+  letter-spacing: 0.01em;
+}
+
+/* ── Where it comes from ── */
+
+.dish-story {
+  margin-top: var(--s-6);
+  padding: var(--s-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface-sunken);
+}
+
+.dish-story__title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.dish-story__text {
+  margin-top: var(--s-2);
+  line-height: 1.6;
+  color: var(--ink);
+}
+
+.dish-story__words {
+  display: grid;
+  gap: var(--s-2);
+  margin: var(--s-4) 0 0;
+  padding: var(--s-3) 0 0;
+  border-top: 1px solid var(--line);
+}
+
+.dish-story__word {
+  display: grid;
+  grid-template-columns: minmax(84px, 34%) 1fr;
+  gap: var(--s-3);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+}
+
+.dish-story__word dt {
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.dish-story__word dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.dish-story__say {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  margin-top: var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--line);
+}
+
+.dish-story__say p {
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+
+.dish-story__say-label {
+  color: var(--ink-2);
+}
+
+.dish-story__say-text {
+  font-weight: 600;
+  color: var(--indigo-text);
+  letter-spacing: 0.01em;
+}
+
+/* Title-row variant used next to the sheet title */
+.sheet__title .say-it {
+  margin-left: var(--s-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .say-it__btn::before {
+    transition: none;
+  }
+
+  .say-it.is-speaking .say-it__wave {
+    animation: none;
+  }
+}

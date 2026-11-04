@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { BATTLES, eloUpdate, type Battle, type Contender } from "@/data/battles";
+import { ShareButton } from "@/components/ShareButton";
 import { useApp } from "@/lib/app-context";
 import { usePersistentState } from "@/lib/storage";
 import { PageHeader, Section } from "@/components/ui";
@@ -236,6 +237,11 @@ export function BattlesScreen({
           <span className="bt-taste__from num">From your {taste.total} picks in {battle.title.toLowerCase()}</span>
         </p>
       )}
+      {myVotesShareable(votes, battle.id) && (
+        <div style={{ margin: "0 0 16px" }}>
+          <ShareButton kind="battle" small battleTitle={battle.title} picks={standings.slice(0, 3)} tasteLine={taste?.line} label="Share my ranking" />
+        </div>
+      )}
 
       <Section>
         <h2 className="bt-question">{battle.question}</h2>
@@ -378,4 +384,9 @@ function ResultStrip({ result }: { result: Result }) {
       </ul>
     </div>
   );
+}
+
+/** Only offer sharing once the person has voted in this battle. */
+function myVotesShareable(votes: VoteCounts, battleId: string) {
+  return (votes[battleId] ?? 0) > 0;
 }

@@ -3,6 +3,8 @@ import type { Dish } from "@/data/dishes";
 import { cleanItem, matchDish } from "@/lib/pantry";
 import { useApp } from "@/lib/app-context";
 import { Icon } from "./Icon";
+import { DishStory } from "./DishStory";
+import { ShareButton } from "./ShareButton";
 
 /* ───────────── Timers parsed from step text ───────────── */
 
@@ -256,6 +258,10 @@ export function CookMode({ dish, onClose }: { dish: Dish; onClose: () => void })
           <div className="cook__current">
             <p className="cook__step">Enjoy your {dish.name}.</p>
             <p className="muted" style={{ marginTop: 12 }}>Tap Finish to go back to your kitchen.</p>
+            <div style={{ marginTop: 24 }}>
+              <ShareButton kind="dish" dish={dish} cooked label="Share what you cooked" />
+            </div>
+            <DishStory dishId={dish.id} name={dish.name} />
           </div>
         )}
       </main>

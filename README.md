@@ -31,6 +31,10 @@ Copy `.env.example` to `.env.local` and fill in the keys. Only `AI_GATEWAY_API_K
 
 Every tool has a fallback: Maps search, Instacart search, or built-in answers if the AI is down. **Demo mode** (checkbox in the panel) plays sample answers and works offline. Store names are prefixed "Sample:".
 
+## Macros and MyFitnessPal
+
+MyFitnessPal has had no public API since 2019, so PantryRoots doesn't connect to MFP accounts. Copy your daily targets in from MFP's Goals screen; each dish has "Copy for MyFitnessPal", which gives a line to paste into Quick Add. Macros are AI estimates for a typical home serving, not measurements, and stay on your device.
+
 ## Demo script (about 60 seconds)
 
 1. Open the Cook page. The concierge sits on the right on desktop; on a phone, tap **Ask**.

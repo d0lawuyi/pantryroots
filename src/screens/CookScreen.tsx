@@ -10,11 +10,14 @@ import { Meter, PageHeader, Section, formatMinutes } from "@/components/ui";
 import { PlateArt } from "@/components/PlateArt";
 import { ShoppingListButton } from "@/components/ShoppingSheet";
 import { rankWithProfile } from "@/lib/profile";
+import { TonightPlanned } from "@/components/TonightPlanned";
+import { TodayMacros } from "@/components/TodayMacros";
+import { FamilyRecipesSection } from "@/components/FamilyRecipesSection";
 
 const plural = (n: number, one: string, many = one + "s") => `${n} ${n === 1 ? one : many}`;
 
 export function CookScreen({ ratings }: { ratings: Record<string, Record<string, number>> }) {
-  const { pantry, go, ask, profile, openShopping } = useApp();
+  const { pantry, go, ask, profile, openShopping, openPlan } = useApp();
   const ranked = useMemo(() => rankWithProfile(rankDishes(pantry), profile), [pantry, profile]);
   const hero = pantry.length > 0 ? ranked[0] : undefined;
   const ready = ranked.filter((m) => m.need.length === 0);
@@ -39,7 +42,9 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
     <div className="page">
       <PageHeader title="Cook" lede={lede} action={<ShoppingListButton className="shop-trigger--mobile-only" onClick={openShopping} />} />
 
+      <TonightPlanned onOpenPlan={openPlan} />
       {hero && <TonightHero match={hero} />}
+      <TodayMacros />
 
       <Section>
         <div className="group">
@@ -89,6 +94,8 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
           </div>
         </Section>
       )}
+
+      <FamilyRecipesSection />
 
       <Section>
         <div className="group">

@@ -1,5 +1,6 @@
 import type { Card, ConciergeError, ConciergeRequest, ConciergeResponse } from "../src/lib/concierge-types.js";
 import { ENV, setupStatus } from "./_lib/env.js";
+import { BUDGET_MS, OutOfTime, callModel, type GatewayMessage } from "./_lib/llm.js";
 import { DISH_NAMES, TOOL_DEFS, runTool, type ToolContext } from "./_lib/tools.js";
 
 /**
@@ -36,12 +37,6 @@ function json(body: ConciergeResponse | ConciergeError, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 }
 
-type GatewayMessage = {
-  role: "system" | "user" | "assistant" | "tool";
-  content?: string | null | { type: string; text?: string; image_url?: { url: string } }[];
-  tool_calls?: { id: string; type: "function"; function: { name: string; arguments: string } }[];
-  tool_call_id?: string;
-};
 
 function toGatewayMessages(req: ConciergeRequest): GatewayMessage[] {
   const out: GatewayMessage[] = [{ role: "system", content: SYSTEM }];
@@ -67,70 +62,6 @@ function toGatewayMessages(req: ConciergeRequest): GatewayMessage[] {
   return out;
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-/** Temporary provider trouble worth retrying or switching models for. */
-const TRANSIENT = new Set([429, 500, 502, 503, 504]);
-
-// Once a model works in this warm instance, keep using it for later steps of the same conversation.
-let workingModel: string | null = null;
-// Set if the provider rejects the reasoning_effort hint, so we stop sending it.
-let skipReasoningHint = false;
-
-/** Whole-request budget. Vercel's limit is 60s (vercel.json); stay well under it and return what we have. */
-const BUDGET_MS = 45_000;
-class OutOfTime extends Error {}
-
-async function callGateway(messages: GatewayMessage[], deadline: number) {
-  const models = [...new Set([workingModel ?? ENV.model, ENV.model, ...ENV.fallbackModels])];
-  let lastErr: (Error & { status?: number }) | null = null;
-
-  for (const model of models) {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      const left = deadline - Date.now();
-      if (left < 4000) throw new OutOfTime("time budget used up");
-      const body: Record<string, unknown> = { model, messages, tools: TOOL_DEFS, tool_choice: "auto", max_tokens: 1400, temperature: 0.4 };
-      // Gemini "thinks" before answering by default; keep it short so the demo stays snappy.
-      if (!skipReasoningHint && ENV.aiBase.includes("googleapis.com")) body.reasoning_effort = "low";
-      let res: Response;
-      try {
-        res = await fetch(`${ENV.aiBase}/chat/completions`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${ENV.aiKey}` },
-          body: JSON.stringify(body),
-          signal: AbortSignal.timeout(Math.min(25_000, left - 2000)),
-        });
-      } catch (e) {
-        // Our own per-call timeout: treat like a busy model and move on.
-        lastErr = Object.assign(new Error(`gateway timeout: ${String(e).slice(0, 80)}`), { status: 504 });
-        console.warn("[concierge] model", model, "timed out");
-        break;
-      }
-      if (res.ok) {
-        workingModel = model;
-        const data = await res.json();
-        return data.choices?.[0]?.message as GatewayMessage | undefined;
-      }
-      const detail = (await res.text()).slice(0, 300);
-      if (res.status === 400 && body.reasoning_effort && /reasoning/i.test(detail)) {
-        skipReasoningHint = true;
-        attempt--;
-        continue;
-      }
-      lastErr = Object.assign(new Error(`gateway ${res.status}: ${detail}`), { status: res.status });
-      console.warn("[concierge] model", model, "attempt", attempt + 1, "->", res.status);
-      // Auth problems won't fix themselves — stop immediately.
-      if (res.status === 401 || res.status === 403) throw lastErr;
-      // Busy: wait briefly and retry once; unknown model: go straight to the next one.
-      if (TRANSIENT.has(res.status) && attempt === 0 && deadline - Date.now() > 8000) {
-        await sleep(1200);
-        continue;
-      }
-      break;
-    }
-    if (workingModel === model) workingModel = null;
-  }
-  throw lastErr ?? new Error("gateway: no model available");
-}
 
 function validate(body: unknown): ConciergeRequest | null {
   const b = body as ConciergeRequest;
@@ -169,7 +100,7 @@ export async function POST(request: Request): Promise<Response> {
     for (let step = 0; step < 5; step++) {
       // Running low on time but already have cards? Show them rather than risk a timeout.
       if (cards.length && deadline - Date.now() < 10_000) break;
-      const msg = await callGateway(messages, deadline);
+      const msg = await callModel(messages, deadline, { tools: TOOL_DEFS });
       if (!msg) break;
       messages.push({ role: "assistant", content: msg.content ?? null, tool_calls: msg.tool_calls });
       if (!msg.tool_calls?.length) {
