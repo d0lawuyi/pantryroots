@@ -1,4 +1,5 @@
 import { createContext, useContext } from "react";
+import type { Dish } from "@/data/dishes";
 
 export type Tab = "cook" | "pantry" | "explore" | "battles" | "neighbors";
 
@@ -8,6 +9,11 @@ export type AppApi = {
   removeItem: (item: string) => void;
   openDish: (id: string) => void;
   openSwap: (ingredient?: string) => void;
+  /** Open the concierge, optionally sending a message straight away. */
+  ask: (prompt?: string) => void;
+  /** Make an AI-written dish openable in the dish sheet. */
+  registerDish: (dish: Dish) => void;
+  getDish: (id: string) => Dish | undefined;
   notify: (message: string) => void;
   go: (tab: Tab) => void;
 };

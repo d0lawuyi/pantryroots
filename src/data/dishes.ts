@@ -23,6 +23,10 @@ export type Dish = {
   ingredients: string[];
   technique: string;
   steps: string[];
+  /** Set on dishes the concierge wrote with AI rather than ones from our curated list. */
+  aiWritten?: boolean;
+  /** Free-text origin for AI-written dishes (curated dishes use peopleId). */
+  origin?: string;
 };
 
 export const PEOPLES: People[] = [

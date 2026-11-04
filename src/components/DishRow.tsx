@@ -22,7 +22,7 @@ export function DishRow({ match, showPeople = true }: { match: Match; showPeople
       <span className="row__body">
         <span className="row__title" style={{ display: "block" }}>{dish.name}</span>
         <span className="row__meta" style={{ display: "block" }}>
-          {showPeople ? `${people.name}, ${formatMinutes(dish.minutes)}` : formatMinutes(dish.minutes)}
+          {showPeople ? `${people?.name ?? dish.origin}, ${formatMinutes(dish.minutes)}` : formatMinutes(dish.minutes)}
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
           <Meter have={have.length} total={dish.ingredients.length} />

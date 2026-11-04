@@ -47,6 +47,7 @@ const PATHS = {
     </>
   ),
   plus: <path d="M12 5v14M5 12h14" />,
+  chat: <path d="M4.5 5.5h15v10h-9l-4.5 4v-4h-1.5z" />,
   close: <path d="M6 6l12 12M18 6 6 18" />,
   chevron: <path d="m9.5 6 6 6-6 6" />,
   back: <path d="m14.5 6-6 6 6 6" />,

@@ -11,6 +11,8 @@ import { BattlesScreen, type Ratings, type VoteCounts } from "@/screens/BattlesS
 import { NeighborsScreen } from "@/screens/NeighborsScreen";
 import { DishSheet } from "@/screens/DishSheet";
 import { SwapSheet } from "@/screens/SwapSheet";
+import { Concierge } from "@/components/Concierge";
+import { dishById, type Dish } from "@/data/dishes";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "cook", label: "Cook", icon: "cook" },
@@ -35,6 +37,9 @@ export default function App() {
   const [dishId, setDishId] = useState<string | null>(null);
   const [swap, setSwap] = useState<{ ingredient?: string } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [conciergeOpen, setConciergeOpen] = useState(false);
+  const [pendingAsk, setPendingAsk] = useState<{ text: string; nonce: number } | null>(null);
+  const [aiDishes, setAiDishes] = useState<Record<string, Dish>>({});
 
   useEffect(() => {
     const onHash = () => setTab(tabFromHash());
@@ -67,10 +72,18 @@ export default function App() {
       removeItem: (item) => setPantry((prev) => prev.filter((p) => p !== item)),
       openDish: (id) => { setSwap(null); setDishId(id); },
       openSwap: (ingredient) => { setDishId(null); setSwap({ ingredient }); },
+      ask: (prompt) => {
+        setDishId(null);
+        setSwap(null);
+        setConciergeOpen(true);
+        if (prompt) setPendingAsk({ text: prompt, nonce: Date.now() });
+      },
+      registerDish: (dish) => setAiDishes((m) => (m[dish.id] ? m : { ...m, [dish.id]: dish })),
+      getDish: (id) => dishById[id] ?? aiDishes[id],
       notify,
       go,
     }),
-    [pantry, setPantry, notify, go],
+    [pantry, setPantry, notify, go, aiDishes],
   );
 
   const readyCount = useMemo(() => rankDishes(pantry).filter((m) => m.need.length === 0).length, [pantry]);
@@ -104,6 +117,15 @@ export default function App() {
           {tab === "battles" && <BattlesScreen ratings={ratings} setRatings={setRatings} votes={votes} setVotes={setVotes} />}
           {tab === "neighbors" && <NeighborsScreen />}
         </main>
+
+        <Concierge open={conciergeOpen} onClose={() => setConciergeOpen(false)} pending={pendingAsk} />
+
+        {!conciergeOpen && (
+          <button type="button" className="ask-fab" onClick={() => setConciergeOpen(true)}>
+            <Icon name="chat" size={20} />
+            Ask
+          </button>
+        )}
 
         <nav className="tabbar" aria-label="Main">
           {TABS.map((t) => (

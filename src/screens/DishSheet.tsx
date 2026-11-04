@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { dishById, peopleById } from "@/data/dishes";
+import { peopleById } from "@/data/dishes";
 import { substituteFor } from "@/data/substitutes";
 import { cleanItem, matchDish } from "@/lib/pantry";
 import { useApp } from "@/lib/app-context";
@@ -7,11 +7,13 @@ import { Icon } from "@/components/Icon";
 import { Meter, Plate, Sheet, formatMinutes } from "@/components/ui";
 
 export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) {
-  const { pantry, addItems, openSwap, notify } = useApp();
+  const { pantry, addItems, ask, getDish, notify } = useApp();
   const [open, setOpen] = useState<string | null>(null);
-  const dish = dishById[id];
-  if (!dish) return null;
+  const found = getDish(id);
+  if (!found) return null;
+  const dish = found;
   const people = peopleById[dish.peopleId];
+  const originLine = people ? `${people.name}, ${people.area}` : dish.origin ?? "";
   const m = matchDish(dish, pantry);
 
   async function copyList() {
@@ -45,13 +47,20 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
       <div className="dish-head">
         <Plate tone={dish.tone} large />
         <div>
-          <p className="small muted">{people.name}, {people.area}</p>
+          <p className="small muted">{originLine}</p>
           <div className="facts" style={{ marginTop: 4 }}>
             <span><Icon name="clock" size={16} />{formatMinutes(dish.minutes)}</span>
             {dish.ahead && <span><Icon name="hourglass" size={16} />{dish.ahead}</span>}
           </div>
         </div>
       </div>
+
+      {dish.aiWritten && (
+        <div className="callout" style={{ marginBottom: 16 }}>
+          <p className="callout__title">AI-written recipe</p>
+          <p className="small" style={{ marginTop: 2 }}>Written by the concierge, not from our tested list. Check it with someone who cooks this dish.</p>
+        </div>
+      )}
 
       <p style={{ lineHeight: 1.6 }}>{dish.summary}</p>
 
@@ -86,8 +95,8 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
                 <div className="sub-panel">
                   <p><strong>Use instead:</strong> {sub.swap}</p>
                   <p className="muted" style={{ marginTop: 4 }}>{sub.tradeoff}</p>
-                  <button type="button" className="link" style={{ marginTop: 8 }} onClick={() => openSwap(ing)}>
-                    Where to buy it
+                  <button type="button" className="link" style={{ marginTop: 8 }} onClick={() => ask(`I'm out of ${ing} for ${dish.name}`)}>
+                    Find it nearby or delivered
                   </button>
                 </div>
               )}

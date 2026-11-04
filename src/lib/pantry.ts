@@ -1,5 +1,5 @@
-import { DISHES, type Dish } from "@/data/dishes";
-import { SUBSTITUTES } from "@/data/substitutes";
+import { DISHES, type Dish } from "../data/dishes.js";
+import { SUBSTITUTES } from "../data/substitutes.js";
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z\s-]/g, "").replace(/\s+/g, " ").trim();
 

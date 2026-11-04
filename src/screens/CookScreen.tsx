@@ -9,7 +9,7 @@ import { PageHeader, Section } from "@/components/ui";
 const plural = (n: number, one: string, many = one + "s") => `${n} ${n === 1 ? one : many}`;
 
 export function CookScreen({ ratings }: { ratings: Record<string, Record<string, number>> }) {
-  const { pantry, go, openSwap } = useApp();
+  const { pantry, go, ask } = useApp();
   const ranked = useMemo(() => rankDishes(pantry), [pantry]);
   const ready = ranked.filter((m) => m.need.length === 0);
   const close = ranked.filter((m) => m.need.length > 0 && m.need.length <= 2);
@@ -82,13 +82,13 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
 
       <Section>
         <div className="group">
-          <button type="button" className="row row--inset" onClick={() => openSwap()}>
+          <button type="button" className="row row--inset" onClick={() => ask()}>
             <span className="avatar" style={{ ["--av" as string]: "var(--gold-tint)", ["--av-ink" as string]: "var(--gold-ink)" }}>
               <Icon name="swap" size={20} />
             </span>
             <span className="row__body">
               <span className="row__title" style={{ display: "block" }}>Out of something?</span>
-              <span className="row__meta" style={{ display: "block" }}>Find a substitute, a shop or delivery</span>
+              <span className="row__meta" style={{ display: "block" }}>Ask the concierge for a swap, a shop nearby or delivery</span>
             </span>
             <span className="row__trail"><Icon name="chevron" size={18} /></span>
           </button>
