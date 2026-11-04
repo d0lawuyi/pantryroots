@@ -1,6 +1,6 @@
 import type { Card, ConciergeError, ConciergeRequest, ConciergeResponse } from "../src/lib/concierge-types.js";
 import { ENV, setupStatus } from "./_lib/env.js";
-import { BUDGET_MS, OutOfTime, callModel, type GatewayMessage } from "./_lib/llm.js";
+import { BUDGET_MS, OutOfTime, callModel, lastModelUsed, type GatewayMessage } from "./_lib/llm.js";
 import { DISH_NAMES, TOOL_DEFS, runTool, type ToolContext } from "./_lib/tools.js";
 
 /**
@@ -9,7 +9,7 @@ import { DISH_NAMES, TOOL_DEFS, runTool, type ToolContext } from "./_lib/tools.j
  * returns the final text plus the cards the tools produced.
  */
 
-const SYSTEM = `You are the PantryRoots Kitchen Concierge: a warm, practical cooking helper who knows food traditions by the people who cook them (Yoruba, Akan, Wolof, Amhara and many more), not just by country.
+const SYSTEM = `You are the PantryRoots Kitchen Concierge, running on Meta's Muse models: a warm, practical cooking helper who knows food traditions by the people who cook them (Yoruba, Akan, Wolof, Amhara and many more), not just by country.
 
 You help with three things:
 1. Pantry scans. When the user sends a photo, call show_pantry_scan and match_dishes (with what you saw as extra_items) together in the same turn.
@@ -105,7 +105,7 @@ export async function POST(request: Request): Promise<Response> {
       messages.push({ role: "assistant", content: msg.content ?? null, tool_calls: msg.tool_calls });
       if (!msg.tool_calls?.length) {
         const text = typeof msg.content === "string" ? msg.content.trim() : "";
-        return json({ text: text || (cards.length ? "Here's what I found." : "Sorry, I didn't catch that."), cards });
+        return json({ text: text || (cards.length ? "Here's what I found." : "Sorry, I didn't catch that."), cards, model: lastModelUsed() ?? undefined });
       }
       // Run this turn's tools in parallel (e.g. stores + cart at once), keep their order for the cards.
       const results = await Promise.all(
@@ -125,10 +125,10 @@ export async function POST(request: Request): Promise<Response> {
         messages.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
       });
     }
-    return json({ text: cards.length ? "Here's what I found." : "That took too long. Try again.", cards });
+    return json({ text: cards.length ? "Here's what I found." : "That took too long. Try again.", cards, model: lastModelUsed() ?? undefined });
   } catch (e) {
     if (e instanceof OutOfTime || ((e as { status?: number }).status === 504 && cards.length)) {
-      if (cards.length) return json({ text: "Here's what I found so far.", cards });
+      if (cards.length) return json({ text: "Here's what I found so far.", cards, model: lastModelUsed() ?? undefined });
       return json({ error: "server_error", message: "The AI took too long to answer. Try again." }, 504);
     }
     const status = (e as { status?: number }).status;

@@ -4,7 +4,14 @@
  */
 import type { Dish } from "../data/dishes.js";
 
-export type ScanItem = { name: string; confidence: "sure" | "check" };
+export type ScanItem = {
+  name: string;
+  confidence: "sure" | "check";
+  /** Perishable and should be cooked soon, judged from the photo. */
+  useSoon?: boolean;
+  /** Short reason, e.g. "very ripe". */
+  note?: string;
+};
 
 export type StoreInfo = {
   name: string;
@@ -42,6 +49,8 @@ export type ChatTurn = {
   cards?: Card[];
   /** Shown under assistant turns produced without the AI (demo or offline). */
   note?: string;
+  /** Model that produced this answer. */
+  model?: string;
 };
 
 export type ConciergeRequest = {
@@ -54,7 +63,7 @@ export type ConciergeRequest = {
   profile?: string;
 };
 
-export type ConciergeResponse = { text: string; cards: Card[] };
+export type ConciergeResponse = { text: string; cards: Card[]; /** Model that answered, e.g. "muse-spark-1.3". */ model?: string };
 
 export type ConciergeError = { error: "ai_unavailable" | "rate_limited" | "bad_request" | "server_error"; message: string };
 

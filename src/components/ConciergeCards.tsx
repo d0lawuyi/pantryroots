@@ -8,6 +8,7 @@ import { Icon } from "./Icon";
 import { formatMinutes } from "./ui";
 import { PlateArt } from "./PlateArt";
 import { AddToListButton } from "./AddToListButton";
+import { useUseSoon } from "@/lib/use-soon";
 
 export function ConciergeCard({ card }: { card: Card }) {
   switch (card.type) {
@@ -38,8 +39,9 @@ function CardShell({ title, meta, children }: { title: string; meta?: string; ch
   );
 }
 
-function ScanCard({ items }: { items: { name: string; confidence: "sure" | "check" }[] }) {
+function ScanCard({ items }: { items: { name: string; confidence: "sure" | "check"; useSoon?: boolean; note?: string }[] }) {
   const { addItems, pantry } = useApp();
+  const useSoon = useUseSoon();
   const owned = new Set(pantry.map((p) => p.toLowerCase()));
   const [picked, setPicked] = useState(() => new Set(items.filter((i) => !owned.has(i.name.toLowerCase())).map((i) => i.name)));
   const [added, setAdded] = useState(false);
@@ -60,6 +62,7 @@ function ScanCard({ items }: { items: { name: string; confidence: "sure" | "chec
               <label className="check-row">
                 <input type="checkbox" checked={have || picked.has(i.name)} disabled={have || added} onChange={() => toggle(i.name)} />
                 <span className="row__body">{i.name}</span>
+                {i.useSoon && <span className="pill pill--soon" title={i.note}>Use soon</span>}
                 {have ? <span className="xs muted">In pantry</span> : i.confidence === "check" && <span className="pill pill--neutral">Check</span>}
               </label>
             </li>
@@ -73,6 +76,7 @@ function ScanCard({ items }: { items: { name: string; confidence: "sure" | "chec
           disabled={added || picked.size === 0}
           onClick={() => {
             addItems([...picked]);
+            useSoon.add(items.filter((i) => i.useSoon && (picked.has(i.name) || owned.has(i.name.toLowerCase()))).map((i) => ({ name: i.name, note: i.note })));
             setAdded(true);
           }}
         >

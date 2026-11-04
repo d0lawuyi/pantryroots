@@ -105,7 +105,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
       if (res.ok) {
-        reply = { role: "assistant", text: res.data.text, cards: res.data.cards };
+        reply = { role: "assistant", text: res.data.text, cards: res.data.cards, model: res.data.model };
       } else if (res.error.error === "rate_limited" || res.error.error === "bad_request") {
         reply = { role: "assistant", text: res.error.message };
       } else {
@@ -139,7 +139,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
       <header className="concierge__head">
         <div>
           <h2 className="concierge__title">Concierge</h2>
-          <p className="xs muted">Scan, cook, and get what you're missing</p>
+          <p className="xs muted">Scan, cook, and get what you're missing. Powered by Meta Muse.</p>
         </div>
         <div className="concierge__actions">
           {turns.length > 0 && (
@@ -191,6 +191,7 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
               {t.text && <p className="reply__text">{t.text}</p>}
               {t.cards?.map((c, j) => <ConciergeCard key={j} card={c} />)}
               {t.note && <p className="reply__note">{t.note}</p>}
+              {!t.note && t.model && <p className="reply__note">Answered by {modelLabel(t.model)}</p>}
             </div>
           ),
         )}
@@ -266,4 +267,12 @@ export function Concierge({ open, onClose, pending }: { open: boolean; onClose: 
 
 function useUsableZip() {
   return usePersistentState<string | null>("zip", null);
+}
+
+/** Friendly model name for the credit line, e.g. "muse-spark-1.3" -> "Meta Muse Spark 1.3". */
+function modelLabel(model: string) {
+  const m = model.replace(/^meta\//, "");
+  const muse = m.match(/^muse-([a-z]+)-?([\d.]+)?/i);
+  if (muse) return `Meta Muse ${muse[1][0].toUpperCase()}${muse[1].slice(1)}${muse[2] ? " " + muse[2] : ""}`;
+  return m;
 }

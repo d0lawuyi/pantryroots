@@ -8,30 +8,50 @@ function read(name: string): string | undefined {
   return v ? v : undefined;
 }
 
+const META_BASE = "https://api.meta.ai/v1";
 const GOOGLE_OPENAI_BASE = "https://generativelanguage.googleapis.com/v1beta/openai";
 const VERCEL_GATEWAY_BASE = "https://ai-gateway.vercel.sh/v1";
 const isUrl = (v?: string) => !!v && /^https:\/\/[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(v);
 const looksLikeGoogleKey = (v?: string) => !!v && /^(AIza|AQ\.)/.test(v);
 
-const baseSetting = read("AI_GATEWAY_BASE_URL");
+/*
+ * PantryRoots runs on Meta's Muse models through the Meta Model API (OpenAI-compatible).
+ * Simplest setup: META_API_KEY. Other OpenAI-compatible providers still work via
+ * AI_GATEWAY_API_KEY + AI_GATEWAY_BASE_URL + CONCIERGE_MODEL.
+ */
+const metaKey = read("META_API_KEY");
+const baseSetting = read("META_API_BASE") || read("AI_GATEWAY_BASE_URL");
 const geminiKey = read("GEMINI_API_KEY");
-let aiKey = read("AI_GATEWAY_API_KEY") || read("CONCIERGE_API_KEY") || geminiKey;
+let aiKey = metaKey || read("AI_GATEWAY_API_KEY") || read("CONCIERGE_API_KEY") || geminiKey;
 // Forgiving setup: a key pasted into the base-URL box still works.
 if (!aiKey && !isUrl(baseSetting) && baseSetting && /^[A-Za-z0-9._-]{20,}$/.test(baseSetting)) aiKey = baseSetting;
 
-// Where to send requests: a valid base URL wins; otherwise Google keys go to Google, everything else to Vercel.
-const aiBase = (isUrl(baseSetting) ? baseSetting! : geminiKey || looksLikeGoogleKey(aiKey) ? GOOGLE_OPENAI_BASE : VERCEL_GATEWAY_BASE).replace(/\/+$/, "");
+// Where to send requests: a valid base URL wins; a Meta key goes to Meta; Google keys to Google; else Vercel's gateway.
+const aiBase = (
+  isUrl(baseSetting) ? baseSetting! : metaKey ? META_BASE : geminiKey || looksLikeGoogleKey(aiKey) ? GOOGLE_OPENAI_BASE : VERCEL_GATEWAY_BASE
+).replace(/\/+$/, "");
+const usingMeta = aiBase.includes("api.meta.ai");
 const usingVercelGateway = aiBase.includes("ai-gateway.vercel.sh");
+const usingGoogle = aiBase.includes("googleapis.com");
 if (!aiKey && usingVercelGateway) aiKey = read("VERCEL_OIDC_TOKEN");
+
+const defaultModel = usingMeta ? "muse-spark-1.3" : usingVercelGateway ? "meta/muse-wonder-1.0" : usingGoogle ? "gemini-3.8-flash" : "muse-spark-1.3";
+const defaultFallbacks = usingMeta
+  ? ["muse-spark-1.1"]
+  : usingVercelGateway
+    ? ["anthropic/claude-sonnet-5", "google/gemini-3.8-flash"]
+    : usingGoogle
+      ? ["gemini-flash-latest", "gemini-flash-lite-latest"]
+      : [];
 
 export const ENV = {
   aiKey,
   aiBase,
-  /** Swap models (e.g. a Muse or Gemini model) without touching code. */
-  model: (read("CONCIERGE_MODEL") || (usingVercelGateway ? "anthropic/claude-opus-5" : "gemini-3.8-flash")).split(/[\s,]/)[0],
+  provider: usingMeta ? "Meta Model API" : usingVercelGateway ? "Vercel AI Gateway" : usingGoogle ? "Google Gemini" : "OpenAI-compatible",
+  /** Swap models without touching code. */
+  model: (read("CONCIERGE_MODEL") || defaultModel).split(/[\s,]/)[0],
   /** Tried in order when the main model is busy or unavailable. Comma-separated in CONCIERGE_FALLBACK_MODELS. */
-  fallbackModels: (read("CONCIERGE_FALLBACK_MODELS")?.split(",").map((m) => m.trim()).filter(Boolean)) ??
-    (usingVercelGateway ? ["anthropic/claude-sonnet-5", "google/gemini-3.8-flash"] : ["gemini-flash-latest", "gemini-flash-lite-latest"]),
+  fallbackModels: read("CONCIERGE_FALLBACK_MODELS")?.split(",").map((m) => m.trim()).filter(Boolean) ?? defaultFallbacks,
   mapsKey: read("GOOGLE_MAPS_API_KEY"),
   instacartKey: read("INSTACART_API_KEY"),
   instacartHost: read("INSTACART_API_HOST") || "https://connect.dev.instacart.tools",
@@ -45,7 +65,9 @@ export function setupStatus() {
   return {
     deployment: { environment: env.VERCEL_ENV ?? "unknown", commit: (env.VERCEL_GIT_COMMIT_SHA ?? "").slice(0, 7) || "unknown" },
     ai: {
+      provider: ENV.provider,
       keyFound: Boolean(ENV.aiKey),
+      META_API_KEY: has("META_API_KEY"),
       AI_GATEWAY_API_KEY: has("AI_GATEWAY_API_KEY"),
       GEMINI_API_KEY: has("GEMINI_API_KEY"),
       // Only echo it when it's really a URL — never risk printing a pasted key.

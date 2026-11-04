@@ -19,6 +19,9 @@ const TRANSIENT = new Set([429, 500, 502, 503, 504]);
 
 // Once a model works in this warm instance, keep using it for later steps of the same conversation.
 let workingModel: string | null = null;
+let lastModel: string | null = null;
+/** The model that answered the most recent successful call (for crediting it in the UI). */
+export const lastModelUsed = () => lastModel;
 // Set if the provider rejects the reasoning_effort hint, so we stop sending it.
 let skipReasoningHint = false;
 // Set if the provider rejects response_format, so structured helpers fall back to prompt-only JSON.
@@ -68,6 +71,7 @@ export async function callModel(messages: GatewayMessage[], deadline: number, op
       }
       if (res.ok) {
         workingModel = model;
+        lastModel = model;
         const data = await res.json();
         return data.choices?.[0]?.message as GatewayMessage | undefined;
       }

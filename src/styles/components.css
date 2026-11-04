@@ -1780,3 +1780,55 @@ textarea.input {
   font-size: var(--fs-sm);
   color: var(--ink-2);
 }
+
+/* ───────────────── Use it up first ───────────────── */
+
+.pill--soon {
+  background: var(--gold-tint);
+  color: var(--gold-ink);
+}
+
+.useup {
+  display: grid;
+  gap: var(--s-3);
+}
+
+.useup__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.useup__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 6px 0 14px;
+  border-radius: var(--r-pill);
+  background: var(--gold-tint);
+  color: var(--gold-ink);
+  font-size: var(--fs-sm);
+}
+
+.useup__name {
+  font-weight: 700;
+}
+
+.useup__note {
+  color: var(--ink-2);
+  font-size: var(--fs-xs);
+}
+
+.useup__done {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: var(--gold-ink);
+}
+
+.useup__done:hover {
+  background: color-mix(in srgb, var(--gold-ink) 14%, transparent);
+}

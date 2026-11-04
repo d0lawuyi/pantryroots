@@ -6,6 +6,7 @@ import {
   mapsSearchUrl,
   type Card,
   type ChatTurn,
+  type ScanItem,
   type ConciergeError,
   type ConciergeRequest,
   type ConciergeResponse,
@@ -53,15 +54,15 @@ export async function askConcierge(req: ConciergeRequest, signal?: AbortSignal):
 /* ───────────── Built-in answers: demo mode and offline fallback ───────────── */
 
 const DEMO_SCAN = [
-  { name: "Plantain", confidence: "sure" },
+  { name: "Plantain", confidence: "sure", useSoon: true, note: "very ripe" },
   { name: "Egusi", confidence: "check" },
   { name: "Crayfish", confidence: "sure" },
   { name: "Stockfish", confidence: "check" },
-  { name: "Spinach", confidence: "sure" },
+  { name: "Spinach", confidence: "sure", useSoon: true, note: "fresh greens" },
   { name: "Black-Eyed Beans", confidence: "sure" },
-  { name: "Garden Eggs", confidence: "check" },
+  { name: "Garden Eggs", confidence: "check", useSoon: true, note: "use within the week" },
   { name: "Ginger", confidence: "sure" },
-] as const;
+] satisfies ScanItem[];
 
 const DEMO_STORES = [
   { name: "Sample: Adesua African Market", address: "Demo address", mapsUrl: mapsSearchUrl("African grocery near me"), openNow: true, closes: "9 PM", distanceMiles: 1.2, driveMinutes: 6 },

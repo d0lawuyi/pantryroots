@@ -18,7 +18,7 @@ export const TOOL_DEFS = [
     function: {
       name: "show_pantry_scan",
       description:
-        "Call after looking at a photo of a pantry, fridge or shelf. List every food ingredient you can see. Use plain grocery names (e.g. 'Plantain', 'Palm Oil', 'Black-Eyed Beans'). Mark items you are not certain about as 'check'.",
+        "Call after looking at a photo of a pantry, fridge or shelf. List every food ingredient you can see. Use plain grocery names (e.g. 'Plantain', 'Palm Oil', 'Black-Eyed Beans'). Mark items you are not certain about as 'check'. Flag perishables that should be used soon with use_soon, based only on what is visible.",
       parameters: {
         type: "object",
         properties: {
@@ -26,7 +26,12 @@ export const TOOL_DEFS = [
             type: "array",
             items: {
               type: "object",
-              properties: { name: str, confidence: { type: "string", enum: ["sure", "check"] } },
+              properties: {
+                name: str,
+                confidence: { type: "string", enum: ["sure", "check"] },
+                use_soon: { type: "boolean", description: "True only for perishables that look like they should be cooked within a few days: ripe or overripe produce, fresh leafy greens, fresh meat or fish, cut or opened items, leftovers." },
+                note: { type: "string", description: "If use_soon: 2-5 words on why, e.g. 'very ripe', 'fresh greens'." },
+              },
               required: ["name", "confidence"],
             },
           },
@@ -121,7 +126,11 @@ export async function runTool(name: string, args: Args, ctx: ToolContext): Promi
       const items = (Array.isArray(args.items) ? args.items : [])
         .filter((i: Args) => typeof i?.name === "string" && i.name.trim())
         .slice(0, 40)
-        .map((i: Args): ScanItem => ({ name: cleanItem(i.name), confidence: i.confidence === "check" ? "check" : "sure" }));
+        .map((i: Args): ScanItem => ({
+          name: cleanItem(i.name),
+          confidence: i.confidence === "check" ? "check" : "sure",
+          ...(i.use_soon === true ? { useSoon: true, note: typeof i.note === "string" ? i.note.trim().slice(0, 40) || undefined : undefined } : {}),
+        }));
       ctx.extraPantry.push(...items.map((i: { name: string }) => i.name));
       return { result: { shown: items.length }, card: { type: "scan", items } };
     }
