@@ -1,0 +1,106 @@
+/*
+ * PantryRoots design tokens — "Adire & Kente"
+ * Indigo from Yoruba adire cloth carries actions and navigation.
+ * Kente gold marks what you already have. Leaf and pepper are status only.
+ * All text pairs are WCAG AA or better (see docs in the PR).
+ */
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --canvas: #f2f3f5;
+  --surface: #ffffff;
+  --surface-sunken: #f7f8fa;
+  --line: #e2e4ea;
+  --line-strong: #cfd3dc;
+
+  /* Text */
+  --ink: #151826;
+  --ink-2: #555b6e;
+  --ink-3: #6a7082;
+  --ink-inverse: #ffffff;
+
+  /* Brand */
+  --indigo: #22337a;
+  --indigo-hover: #1a2864;
+  --indigo-tint: #e7eaf5;
+  --indigo-text: #22337a;
+  --gold: #e9a825;
+  --gold-tint: #fcf1d6;
+  --gold-ink: #7a5300;
+
+  /* Status */
+  --leaf: #17663f;
+  --leaf-tint: #e2f1e8;
+  --pepper: #a8301b;
+  --pepper-tint: #fbe8e4;
+
+  /* Dish swatches — the colour of the finished plate */
+  --tone-red: #c8402a;
+  --tone-orange: #df7a2c;
+  --tone-gold: #d9a13a;
+  --tone-green: #4e7a3a;
+  --tone-brown: #85573a;
+  --tone-cream: #e6dcc4;
+
+  /* Type */
+  --font: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fs-xs: 0.8125rem;   /* 13 */
+  --fs-sm: 0.875rem;    /* 14 */
+  --fs-md: 0.9375rem;   /* 15 — body */
+  --fs-lg: 1.0625rem;   /* 17 */
+  --fs-xl: 1.25rem;     /* 20 */
+  --fs-2xl: 1.625rem;   /* 26 */
+  --fs-3xl: 2rem;       /* 32 — large titles */
+
+  /* Space (4pt) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+
+  /* Radius — larger containers get larger radii */
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-pill: 999px;
+
+  /* Elevation is reserved for things that float above the page */
+  --shadow-float: 0 12px 40px rgb(21 24 38 / 0.18), 0 2px 8px rgb(21 24 38 / 0.08);
+  --shadow-bar: 0 -1px 0 var(--line);
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --tabbar-h: 64px;
+  --sidebar-w: 240px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --canvas: #0e1016;
+    --surface: #181b24;
+    --surface-sunken: #13151d;
+    --line: #2a2e3a;
+    --line-strong: #3a3f4d;
+    --ink: #eceef3;
+    --ink-2: #a5abba;
+    --ink-3: #8b91a1;
+    --indigo: #4256b8;
+    --indigo-hover: #4f64c9;
+    --indigo-tint: #1f2647;
+    --indigo-text: #a9b6f2;
+    --gold-tint: #3a2f14;
+    --gold-ink: #f0c25e;
+    --leaf: #6fcf9c;
+    --leaf-tint: #15301f;
+    --pepper: #f08a74;
+    --pepper-tint: #3a1c16;
+    --tone-cream: #cfc4a9;
+    --shadow-float: 0 12px 40px rgb(0 0 0 / 0.5);
+  }
+}
