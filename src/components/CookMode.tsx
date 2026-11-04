@@ -5,6 +5,7 @@ import { useApp } from "@/lib/app-context";
 import { Icon } from "./Icon";
 import { DishStory } from "./DishStory";
 import { ShareButton } from "./ShareButton";
+import { RecipeExtras } from "./RecipeExtras";
 
 /* ───────────── Timers parsed from step text ───────────── */
 
@@ -229,6 +230,7 @@ export function CookMode({ dish, onClose }: { dish: Dish; onClose: () => void })
                 );
               })}
             </ul>
+            <RecipeExtras dish={dish} />
             <p className="small muted" style={{ marginTop: 16 }}>{dish.technique}</p>
           </div>
         )}

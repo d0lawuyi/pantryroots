@@ -26,7 +26,7 @@ Copy `.env.example` to `.env.local` and fill in the keys. Only `META_API_KEY` is
 
 New visitors start with an empty pantry. **Try sample pantry** loads 11 demo ingredients; **Start my own pantry** clears that unchanged sample so you can enter your own food. Existing saved pantry contents remain on the device. The original 11-item sample is recognized regardless of item order and case.
 
-Party Jollof includes suggested amounts for four servings in both the recipe sheet and cooking preparation list. Ingredient names remain the shared keys for pantry matching and shopping lists; quantities are display metadata. These amounts are a suggested starting point, not a kitchen-tested formulation. Other dishes still use their existing ingredient-only cards.
+All 23 curated dishes include suggested amounts for four servings in both the recipe sheet and cooking preparation list. Ingredient names remain the shared keys for pantry matching and shopping lists; quantities are display metadata. Water, advance preparation notes and optional serving extras appear separately. Optional extras do not block a match or enter the shopping list automatically. These amounts are suggested starting points, not kitchen-tested formulations. See `docs/recipe-audit.md` for scope and references.
 
 ## How the concierge works
 

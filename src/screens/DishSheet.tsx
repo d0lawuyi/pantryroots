@@ -14,6 +14,7 @@ import { ShareButton } from "@/components/ShareButton";
 import { isFamilyRecipe } from "@/lib/family";
 import { FamilyQuote, FamilySource } from "@/components/FamilyRecipeSheet";
 import { MacrosPanel } from "@/components/MacrosPanel";
+import { RecipeExtras } from "@/components/RecipeExtras";
 
 export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) {
   const { pantry, addItems, ask, getDish, startCooking } = useApp();
@@ -77,7 +78,7 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
       ) : dish.aiWritten && (
         <div className="callout" style={{ marginBottom: 16 }}>
           <p className="callout__title">AI-written recipe</p>
-          <p className="small" style={{ marginTop: 2 }}>Written by the concierge, not from our tested list. Check it with someone who cooks this dish.</p>
+          <p className="small" style={{ marginTop: 2 }}>Written by the concierge rather than from our curated collection. Check it with someone who cooks this dish.</p>
         </div>
       )}
 
@@ -92,7 +93,7 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
         <span className="small muted num">{m.have.length} of {dish.ingredients.length} in pantry</span>
       </div>
       <Meter have={m.have.length} total={dish.ingredients.length} large />
-      {dish.amounts && <p className="small muted" style={{ marginTop: 8 }}>Suggested amounts for {dish.servings} servings. Adjust heat and liquid to your taste and rice.</p>}
+      {dish.amounts && <p className="small muted" style={{ marginTop: 8 }}>Suggested amounts for {dish.servings} servings. Adjust seasoning and liquid as needed. Pantry matches check ingredient names, not quantities.</p>}
 
       <ul className="group" style={{ marginTop: 12 }}>
         {dish.ingredients.map((ing) => {
@@ -137,6 +138,7 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
           );
         })}
       </ul>
+      <RecipeExtras dish={dish} />
         </>
       )}
 

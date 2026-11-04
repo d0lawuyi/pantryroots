@@ -39,6 +39,7 @@ const EXACT: Record<string, Aisle> = {
   egusi: "Dried & canned", peanuts: "Dried & canned", "peanut butter": "Dried & canned", raisins: "Dried & canned",
   "tomato paste": "Dried & canned", tamarind: "Dried & canned",
   // Spices & sauces
+  "black pepper": "Spices & sauces",
   "bay leaf": "Spices & sauces", berbere: "Spices & sauces", cardamom: "Spices & sauces", cinnamon: "Spices & sauces",
   cloves: "Spices & sauces", cumin: "Spices & sauces", "curry powder": "Spices & sauces", dawadawa: "Spices & sauces",
   iru: "Spices & sauces", mustard: "Spices & sauces", "shiro powder": "Spices & sauces", shito: "Spices & sauces",
