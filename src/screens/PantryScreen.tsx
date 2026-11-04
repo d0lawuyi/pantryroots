@@ -6,6 +6,7 @@ import { useApp } from "@/lib/app-context";
 import { Icon } from "@/components/Icon";
 import { PageHeader, Section } from "@/components/ui";
 import { ScanKitchen } from "@/components/ScanKitchen";
+import { SamplePantryNotice } from "@/components/SamplePantryNotice";
 
 type Product = { name: string; brand: string; image?: string };
 type Lookup = { state: "idle" } | { state: "loading" } | { state: "found"; product: Product } | { state: "missing" } | { state: "error" };
@@ -205,6 +206,7 @@ export function PantryScreen() {
   return (
     <div className="page pantry">
       <PageHeader title="Pantry" lede={lede} />
+      <SamplePantryNotice />
 
       <Section>
         <form onSubmit={submit} className="input-row">

@@ -21,6 +21,9 @@ export type Dish = {
   ahead?: string;
   tone: Tone;
   ingredients: string[];
+  /** Suggested recipe yield and amounts; ingredient names remain the matching keys. */
+  servings?: number;
+  amounts?: Record<string, string>;
   technique: string;
   steps: string[];
   /** Set on dishes the concierge wrote with AI rather than ones from our curated list. */
@@ -73,13 +76,27 @@ export const DISHES: Dish[] = [
   {
     id: "party-jollof", name: "Party Jollof", peopleId: "yoruba", minutes: 75, tone: "red",
     summary: "Long-grain rice steamed in a fried pepper base, heavy on bay leaf, with the smoky bottom that makes it party food.",
-    ingredients: ["long grain rice", "tomato", "red bell pepper", "scotch bonnet", "onion", "tomato paste", "bay leaf", "vegetable oil"],
+    ingredients: ["long grain rice", "tomato", "red bell pepper", "scotch bonnet", "onion", "tomato paste", "bay leaf", "vegetable oil", "thyme", "curry powder", "stock"],
+    servings: 4,
+    amounts: {
+      "long grain rice": "400 g",
+      tomato: "4 medium",
+      "red bell pepper": "2 medium",
+      "scotch bonnet": "1, or less to taste",
+      onion: "2 medium",
+      "tomato paste": "3 tbsp",
+      "bay leaf": "2 leaves",
+      "vegetable oil": "80 ml",
+      thyme: "1 tsp dried",
+      "curry powder": "1 tsp",
+      stock: "600 ml hot, added gradually",
+    },
     technique: "Reduce the pepper base before the rice goes in, then steam under foil with very little liquid.",
     steps: [
-      "Blend tomatoes, red bell pepper, scotch bonnet and onion. Boil the blend down until thick.",
-      "Fry sliced onion and tomato paste in oil, add the reduced base, then thyme, curry powder, bay leaf and stock.",
-      "Stir in washed parboiled rice with just enough stock to cover. Seal with foil and a lid and steam on low.",
-      "For the last few minutes turn the heat up and let the bottom catch. Don't stir it in. Serve it on the side.",
+      "Blend the tomatoes, red bell peppers, scotch bonnet and one onion. Boil the blend down until thick, about 15–20 minutes.",
+      "Slice the remaining onion and fry in the vegetable oil. Add tomato paste and fry for 5 minutes, then add the reduced pepper base, thyme, curry powder and bay leaves. Fry for 10 minutes, stirring.",
+      "Stir in the rinsed long-grain parboiled rice and 500 ml hot stock. Seal with foil and a lid and steam on low for 25–30 minutes. If the rice is still firm and the pot is dry, add the reserved stock a little at a time and keep steaming until tender.",
+      "For the last 2 minutes turn the heat up slightly and let the bottom catch, watching closely so it doesn't burn. Rest off the heat, covered, for 5 minutes. Fluff the rice without stirring in the smoky bottom; serve that on the side.",
     ],
   },
   {

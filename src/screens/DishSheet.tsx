@@ -16,7 +16,7 @@ import { FamilyQuote, FamilySource } from "@/components/FamilyRecipeSheet";
 import { MacrosPanel } from "@/components/MacrosPanel";
 
 export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) {
-  const { pantry, addItems, ask, getDish, notify, startCooking } = useApp();
+  const { pantry, addItems, ask, getDish, startCooking } = useApp();
   const [open, setOpen] = useState<string | null>(null);
   const found = getDish(id);
   if (!found) return null;
@@ -56,6 +56,7 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
           <p className="small muted">{originLine}</p>
           <div className="facts" style={{ marginTop: 4 }}>
             <span><Icon name="clock" size={16} />{formatMinutes(dish.minutes)}</span>
+            {dish.servings && <span>Serves {dish.servings}</span>}
             {dish.ahead && <span><Icon name="hourglass" size={16} />{dish.ahead}</span>}
           </div>
         </div>
@@ -91,6 +92,7 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
         <span className="small muted num">{m.have.length} of {dish.ingredients.length} in pantry</span>
       </div>
       <Meter have={m.have.length} total={dish.ingredients.length} large />
+      {dish.amounts && <p className="small muted" style={{ marginTop: 8 }}>Suggested amounts for {dish.servings} servings. Adjust heat and liquid to your taste and rice.</p>}
 
       <ul className="group" style={{ marginTop: 12 }}>
         {dish.ingredients.map((ing) => {
@@ -99,7 +101,10 @@ export function DishSheet({ id, onClose }: { id: string; onClose: () => void }) 
           return (
             <li key={ing}>
               <div className="row" style={{ minHeight: 48, paddingBlock: 8 }}>
-                <span className="row__body">{cleanItem(ing)}</span>
+                <span className="row__body">
+                  {cleanItem(ing)}
+                  {dish.amounts?.[ing] && <span className="row__meta" style={{ display: "block" }}>{dish.amounts[ing]}</span>}
+                </span>
                 {has ? (
                   <span className="status status--have"><Icon name="check" size={16} strokeWidth={2.25} />Have</span>
                 ) : (

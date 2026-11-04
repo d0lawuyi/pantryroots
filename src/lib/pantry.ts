@@ -29,6 +29,8 @@ export function covers(pantryItem: string, ingredient: string) {
   const i = norm(ingredient);
   if (!p || !i) return false;
   if (p === i) return true;
+  // Concentrated paste and fresh tomatoes are separate recipe requirements.
+  if (p === "tomato paste" || i === "tomato paste") return false;
   for (const group of EQUIVALENTS) {
     if (group.includes(p) && group.includes(i)) return true;
   }

@@ -19,6 +19,7 @@ import { useProfile } from "@/lib/profile";
 import { WeekPlanSheet, CalendarIcon } from "@/components/WeekPlanSheet";
 import { dishById, type Dish } from "@/data/dishes";
 import type { PendingAsk } from "@/lib/concierge-types";
+import { SAMPLE_PANTRY, matchesSamplePantry } from "@/data/sample-pantry";
 
 const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "cook", label: "Cook", icon: "cook" },
@@ -28,8 +29,6 @@ const TABS: { id: Tab; label: string; icon: IconName }[] = [
   { id: "neighbors", label: "Neighbors", icon: "neighbors" },
 ];
 
-const STARTER_PANTRY = ["Rice", "Tomato", "Tomato Paste", "Onion", "Scotch Bonnet", "Palm Oil", "Garlic", "Ginger", "Vegetable Oil", "Red Bell Pepper", "Bay Leaf"];
-
 function tabFromHash(): Tab {
   const id = window.location.hash.replace(/^#\/?/, "");
   return TABS.some((t) => t.id === id) ? (id as Tab) : "cook";
@@ -37,7 +36,7 @@ function tabFromHash(): Tab {
 
 export default function App() {
   const [tab, setTab] = useState<Tab>(tabFromHash);
-  const [pantry, setPantry] = usePersistentState<string[]>("pantry", STARTER_PANTRY);
+  const [pantry, setPantry] = usePersistentState<string[]>("pantry", []);
   const [profile, setProfile] = useProfile();
   const [shoppingOpen, setShoppingOpen] = useState(false);
   const [planOpen, setPlanOpen] = useState(false);
@@ -73,6 +72,13 @@ export default function App() {
   const api: AppApi = useMemo(
     () => ({
       pantry,
+      usingSamplePantry: matchesSamplePantry(pantry),
+      startOwnPantry: () => { setPantry([]); notify("Started an empty pantry. You can try the sample again anytime."); },
+      trySamplePantry: () => {
+        if (pantry.length) return;
+        setPantry([...SAMPLE_PANTRY]);
+        notify("Loaded sample ingredients. Check them against your kitchen.");
+      },
       addItems: (items) => {
         const owned = new Set(pantry.map((p) => p.toLowerCase()));
         const fresh = [...new Set(items.filter(Boolean))].filter((i) => !owned.has(i.toLowerCase()));

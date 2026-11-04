@@ -16,10 +16,17 @@ Cook from your pantry across West and East African food traditions, grouped by t
 ```bash
 npm install
 npm run dev          # UI only; the concierge falls back to built-in answers
+npm test             # recipe matching and sample pantry regression checks
+npm run typecheck
+npm run build
 npx vercel dev       # UI + /api/concierge with your .env.local keys
 ```
 
 Copy `.env.example` to `.env.local` and fill in the keys. Only `META_API_KEY` is required.
+
+New visitors start with an empty pantry. **Try sample pantry** loads 11 demo ingredients; **Start my own pantry** clears that unchanged sample so you can enter your own food. Existing saved pantry contents remain on the device. The original 11-item sample is recognized regardless of item order and case.
+
+Party Jollof includes suggested amounts for four servings in both the recipe sheet and cooking preparation list. Ingredient names remain the shared keys for pantry matching and shopping lists; quantities are display metadata. These amounts are a suggested starting point, not a kitchen-tested formulation. Other dishes still use their existing ingredient-only cards.
 
 ## How the concierge works
 

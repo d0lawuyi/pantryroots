@@ -15,6 +15,7 @@ import { ScanKitchen } from "@/components/ScanKitchen";
 import { UseItUp } from "@/components/UseItUp";
 import { TodayMacros } from "@/components/TodayMacros";
 import { FamilyRecipesSection } from "@/components/FamilyRecipesSection";
+import { SamplePantryNotice } from "@/components/SamplePantryNotice";
 
 const plural = (n: number, one: string, many = one + "s") => `${n} ${n === 1 ? one : many}`;
 
@@ -43,6 +44,7 @@ export function CookScreen({ ratings }: { ratings: Record<string, Record<string,
   return (
     <div className="page">
       <PageHeader title="Cook" lede={lede} action={<ShoppingListButton className="shop-trigger--mobile-only" onClick={openShopping} />} />
+      <SamplePantryNotice />
 
       <ScanKitchen />
       <UseItUp />

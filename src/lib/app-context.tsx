@@ -7,6 +7,9 @@ export type Tab = "cook" | "pantry" | "explore" | "battles" | "neighbors";
 
 export type AppApi = {
   pantry: string[];
+  usingSamplePantry: boolean;
+  startOwnPantry: () => void;
+  trySamplePantry: () => void;
   /** Food roots and preferences from onboarding. */
   profile: Profile;
   openShopping: () => void;

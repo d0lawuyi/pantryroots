@@ -216,13 +216,14 @@ export function CookMode({ dish, onClose }: { dish: Dish; onClose: () => void })
         {index < 0 && (
           <div className="cook__ready">
             <h2 className="cook__step">Get everything out first</h2>
+            {dish.servings && <p className="small muted">Suggested amounts for {dish.servings} servings.</p>}
             <ul className="cook__ings">
               {dish.ingredients.map((ing) => {
                 const has = match.have.includes(ing);
                 return (
                   <li key={ing}>
                     <span className={has ? "cook__dot cook__dot--have" : "cook__dot"} aria-hidden="true" />
-                    {cleanItem(ing)}
+                    <span>{cleanItem(ing)}{dish.amounts?.[ing] && <span className="row__meta" style={{ display: "block" }}>{dish.amounts[ing]}</span>}</span>
                     {!has && <span className="status status--need">not in pantry</span>}
                   </li>
                 );
