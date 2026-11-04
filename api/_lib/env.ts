@@ -28,7 +28,7 @@ export const ENV = {
   aiKey,
   aiBase,
   /** Swap models (e.g. a Muse or Gemini model) without touching code. */
-  model: (read("CONCIERGE_MODEL") || (usingVercelGateway ? "anthropic/claude-opus-5" : "gemini-2.5-flash")).split(/[\s,]/)[0],
+  model: (read("CONCIERGE_MODEL") || (usingVercelGateway ? "anthropic/claude-opus-5" : "gemini-3.8-flash")).split(/[\s,]/)[0],
   mapsKey: read("GOOGLE_MAPS_API_KEY"),
   instacartKey: read("INSTACART_API_KEY"),
   instacartHost: read("INSTACART_API_HOST") || "https://connect.dev.instacart.tools",
